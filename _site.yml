@@ -1,7 +1,7 @@
-name: "Brain-Mapping"
+name: "Brain-Mapping-LMM"
 output_dir: "."
 navbar:
-  title: "Performance of brain-mapping models"
+  title: "Brain-Mapping-LMM"
   left:
     - text: "Home"
       href: index.html
