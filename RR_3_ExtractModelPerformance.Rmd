@@ -43,7 +43,7 @@ do
 mkdir -p $wd/${scenario}_clusterFWER
 cd $wd/${scenario}_clusterFWER
 ${wd}/qsubshcom " module load R/3.5.0 |; 
-cd /scratch/project/genetic_data_analysis/uqbcouvy/56_BWAS |;
+cd "${wd}" |;
 for NNN in 0 |;
 do |;
 if [ ! -f "${wd}"/"${scenario}"_clusterFWER/Results_clusterFWER_NVertices\${NNN}_iter\${TASK_ID}.txt ] |;
@@ -147,7 +147,7 @@ for scenario in 03_BWAS_uncorrected_allModa  09_BWAS_ICVagesex_allModa  04_BWAS_
 do
 cd $wd/${scenario}_clusterFWER
 ${wd}/qsubshcom " module load R/3.5.0 |; 
-cd /scratch/project_mnt/S0007/uqbcouvy/56_BWAS/ |;
+cd "${wd}" |;
 for NNN in 10 100 1000 |;
 do |;
 Rscript --no-save 'RR_2.5.3_BWAS_clusterFWER_wrapper_arrayjob_allModa_varySignifThreshold.R' "${wd}"/"${scenario}" 100 \${NNN} "${wd}"/"${scenario}"_clusterFWER \${TASK_ID}  |;
@@ -207,7 +207,7 @@ write.table(restotAll, paste0(wd, "power_FWER_allSignifT_",scenario, "_NVertices
 
 setFWER=0.20
 
-wd="/scratch/project/genetic_data_analysis/uqbcouvy/56_BWAS/"
+wd="path/to/working/directory"
 scenario="03_BWAS_uncorrected_allModa"
 
 for (NNN in c(10,100,1000)){

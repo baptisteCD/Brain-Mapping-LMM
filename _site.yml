@@ -13,7 +13,9 @@ navbar:
       href: RR_3_ExtractModelPerformance.html
     - text: "4 Plot performance"
       href: RR_4_Plots_manuscript_ModelPerformance_morphometricity.html
-    - text: "5 Brain Predictors"
-      href: RR_5_PredictionAnalysis_simulatedPhenotypes.html
-    - text: "6 Plot prediction"
-      href: RR_6_PredictionAnalysis_plots_results.html
+    - text: "5 Supplementary plots"
+      href: RR_5_SupplementaryPlots_manuscript_ModelPerformance_morphometricity.html
+    - text: "6 Brain Predictors"
+      href: RR_6_PredictionAnalysis_simulatedPhenotypes.html
+    - text: "7 Prepare UKB data"
+      href: RR_7_PrepareUKB_phenotypicData.html

@@ -377,10 +377,13 @@ div.tocify {
   <a href="RR_4_Plots_manuscript_ModelPerformance_morphometricity.html">4 Plot performance</a>
 </li>
 <li>
-  <a href="RR_5_PredictionAnalysis_simulatedPhenotypes.html">5 Brain Predictors</a>
+  <a href="RR_5_SupplementaryPlots_manuscript_ModelPerformance_morphometricity.html">5 Supplementary plots</a>
 </li>
 <li>
-  <a href="RR_6_PredictionAnalysis_plots_results.html">3 Plot prediction</a>
+  <a href="RR_6_PredictionAnalysis_simulatedPhenotypes.html">6 Brain Predictors</a>
+</li>
+<li>
+  <a href="RR_7_PrepareUKB_phenotypicData.html">7 Prepare UKB data</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -432,7 +435,7 @@ div.tocify {
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">mkdir</span> <span class="at">-p</span> <span class="va">$wd</span>/<span class="va">${scenario}</span>_clusterFWER</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="va">$wd</span>/<span class="va">${scenario}</span>_clusterFWER</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="va">${wd}</span><span class="ex">/qsubshcom</span> <span class="st">&quot; module load R/3.5.0 |; </span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="st">cd /scratch/project/genetic_data_analysis/uqbcouvy/56_BWAS |;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="st">cd &quot;</span><span class="va">${wd}</span><span class="st">&quot; |;</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="st">for NNN in 0 |;</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">do |;</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="st">if [ ! -f &quot;</span><span class="va">${wd}</span><span class="st">&quot;/&quot;</span><span class="va">${scenario}</span><span class="st">&quot;_clusterFWER/Results_clusterFWER_NVertices</span><span class="dt">\$</span><span class="st">{NNN}_iter</span><span class="dt">\$</span><span class="st">{TASK_ID}.txt ] |;</span></span>
@@ -523,7 +526,7 @@ div.tocify {
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="cf">do</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> <span class="va">$wd</span>/<span class="va">${scenario}</span>_clusterFWER</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="va">${wd}</span><span class="ex">/qsubshcom</span> <span class="st">&quot; module load R/3.5.0 |; </span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="st">cd /scratch/project_mnt/S0007/uqbcouvy/56_BWAS/ |;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="st">cd &quot;</span><span class="va">${wd}</span><span class="st">&quot; |;</span></span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="st">for NNN in 10 100 1000 |;</span></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="st">do |;</span></span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="st">Rscript --no-save &#39;RR_2.5.3_BWAS_clusterFWER_wrapper_arrayjob_allModa_varySignifThreshold.R&#39; &quot;</span><span class="va">${wd}</span><span class="st">&quot;/&quot;</span><span class="va">${scenario}</span><span class="st">&quot; 100 </span><span class="dt">\$</span><span class="st">{NNN} &quot;</span><span class="va">${wd}</span><span class="st">&quot;/&quot;</span><span class="va">${scenario}</span><span class="st">&quot;_clusterFWER </span><span class="dt">\$</span><span class="st">{TASK_ID}  |;</span></span>
@@ -574,7 +577,7 @@ div.tocify {
 <h2 number="4.2"><span class="header-section-number">4.2</span> Extract statistical power for a fixed cluster FWER</h2>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>setFWER<span class="ot">=</span><span class="fl">0.20</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>wd<span class="ot">=</span><span class="st">&quot;/scratch/project/genetic_data_analysis/uqbcouvy/56_BWAS/&quot;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>wd<span class="ot">=</span><span class="st">&quot;path/to/working/directory&quot;</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>scenario<span class="ot">=</span><span class="st">&quot;03_BWAS_uncorrected_allModa&quot;</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (NNN <span class="cf">in</span> <span class="fu">c</span>(<span class="dv">10</span>,<span class="dv">100</span>,<span class="dv">1000</span>)){</span>

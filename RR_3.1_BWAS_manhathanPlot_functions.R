@@ -401,10 +401,7 @@ return(res)
 
 ###################################
 # Null phenotypes
-# All moda
-  #path="/gpfs1/scratch/30days/uqbcouvy/56_BWAS/03_BWAS_uncorrected_allModa"
-  #iter=1
-  #NNN=0
+
 
 summaryBWAS_allModa_NULL<-function(path , iter, NNN){
 

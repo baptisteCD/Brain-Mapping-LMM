@@ -1,6 +1,6 @@
 # Wrapper to extract the values of interest from the simulated BWAS results
 
-setwd("/scratch/project/genetic_data_analysis/uqbcouvy/56_BWAS")
+setwd("/path/to/working/directory")
 source("RR_3.1_BWAS_manhathanPlot_functions.R")
 
 library(Morpho)

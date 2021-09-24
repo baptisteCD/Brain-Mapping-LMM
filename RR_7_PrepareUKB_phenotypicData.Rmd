@@ -1,0 +1,75 @@
+---
+title: "Prepare UKB phenotypic data"
+author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
+output:
+  epuRate::PCTG:
+    toc: TRUE
+    code_folding: "show"
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# You need these libraries to run this template:
+library(rmarkdown)    # install.packages("rmarkdown") 
+library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
+
+```
+
+
+# Open database 
+
+> UKB_phenotypes_15K_allData_regVars_Jan2019Update.csv was created using the ukbtool package, which renamed the columns in a more user friendly format  
+<https://github.com/kenhanscombe/ukbtools>  
+
+
+```{R, message=FALSE, eval=F}
+
+library(readr)
+TT=read_csv("UKB_phenotypes_15K_allData_regVars_Jan2019Update.csv")
+# Add discovery and replication variables to extract sample for BWAS
+
+table(TT$t1_structural_brain_images_nifti_f20252_2_0, exclude = NULL)
+table(TT$t2_flair_structural_brain_images_nifti_f20253_2_0, exclude = NULL)
+
+# Open and add PCs
+globPC=read.table("PC.10global.eigenvec")
+colnames(globPC)=c("eid", "iid", paste0("PC", 1:10))
+TT=merge(TT, globPC, by="eid", all.x=T)
+
+```
+
+# Write raw phenotypes and covariate files 
+
+```{R, message=FALSE, eval=F}
+
+# Exclude extreme ICV values and normalise variables
+TT$ICV[which(TT$ICV<1000000)]=NA
+TT$ICV[which(TT$ICV>2000000)]=NA
+TT$ICVstd=scale(TT$ICV)
+
+TT$Agestd=scale(TT$Age_MRI)
+
+# Covariates for age
+write.table( TT[,c("eid", "eid", "sexuses_datacoding_9_f31_0_0", "ICVstd")], paste0("../../UKB_phenotypes15K/Covariates_no_Age_MRI.phen"), col.names = F, row.names = F)
+write.table( TT[,c("eid", "eid", "Agestd", "ICVstd")], paste0("../../UKB_phenotypes15K/Covariates_no_sexuses_datacoding_9_f31_0_0.phen"), col.names = F, row.names = F)
+write.table( TT[,c("eid", "eid", "Age_MRI", "sexuses_datacoding_9_f31_0_0")], paste0("../../UKB_phenotypes15K/Covariates_no_ICV.phen"), col.names = F, row.names = F)
+
+```
+
+# Write PCs
+
+```{R, message=FALSE, eval=F}
+
+for (iii in 1:10){
+  write.table( TT[,c("eid", "eid", paste0("PC", iii))], paste0("../../UKB_phenotypes15K/PC", iii, ".phen"), col.names = F, row.names = F)
+}
+
+```
+
+
+
+
+
+
+
+<br><br>

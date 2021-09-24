@@ -1,0 +1,222 @@
+---
+title: "Analyses correcting for head size and Body size - new phenotypes"
+author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
+output:
+  epuRate::PCTG:
+    toc: TRUE
+    code_folding: "show"
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# You need these libraries to run this template:
+library(rmarkdown)    # install.packages("rmarkdown") 
+library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
+
+```
+
+# Make morphometricity plots
+
+> Supplementary plot 8
+
+```{R, message=FALSE, eval=F}
+
+# Make plots
+png(paste0("Simul_morphometricity_allModa.png"), width = 18, height = 10, units = "cm", res = 400)
+cols=c(viridis_pal(option = "C")(8)[6:8])
+
+par(mar=c(9,5,1,1), mfrow=c(1,3))
+res10=read.table(paste0("07_BWAS_MOA_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 10, ".txt"))
+res102=read.table(paste0("10_BWAS_MOA_multiORM_QC_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 10, ".txt"))
+res103=read.table(paste0("15_BWAS_MOA_allModa_FE_clusterFWER/BWAS_morphometricity_allModa_N", 10, ".txt"))
+resAll=cbind(res10$V2, res103$V2, res102$V2)
+boxplot(resAll, xaxt="n", col=cols, ylim=c(0,0.7), ylab="Estimated morphometricity")
+abline(h=c(0.2), col="grey", lty=2, lwd=2)
+text(cex=1, x=c(1:3)+0.25, y=-0.05 , pos = 2, c("LMM (global BRM)", "LMM with covariates", "LMM (multi. BRM)"), xpd=TRUE, srt=65) 
+
+
+res10=read.table(paste0("07_BWAS_MOA_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 100, ".txt"))
+res102=read.table(paste0("10_BWAS_MOA_multiORM_QC_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 100, ".txt"))
+res103=read.table(paste0("15_BWAS_MOA_allModa_FE_clusterFWER/BWAS_morphometricity_allModa_N", 100, ".txt"))
+resAll=cbind(res10$V2, res103$V2, res102$V2)
+boxplot(resAll, xaxt="n", col=cols, ylim=c(0,0.7))
+abline(h=c(0.5), col="grey", lty=2, lwd=2)
+text(cex=1, x=c(1:3)+0.25, y=-0.05 , pos = 2, c("LMM (global BRM)", "LMM with covariates", "LMM (multi. BRM)"), xpd=TRUE, srt=65) 
+
+res10=read.table(paste0("07_BWAS_MOA_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 1000, ".txt"))
+res102=read.table(paste0("10_BWAS_MOA_multiORM_QC_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 1000, ".txt"))
+res103=read.table(paste0("15_BWAS_MOA_allModa_FE_clusterFWER/BWAS_morphometricity_allModa_N", 1000, ".txt"))
+resAll=cbind(res10$V2, res103$V2, res102$V2)
+boxplot(resAll, xaxt="n", col=cols, ylim=c(0,0.7))
+abline(h=c(0.4), col="grey", lty=2, lwd=2)
+text(cex=1, x=c(1:3)+0.25, y=-0.05 , pos = 2, c("LMM (global BRM)", "LMM with covariates", "LMM (multi. BRM)"), xpd=TRUE, srt=65) 
+
+dev.off()
+
+```
+
+# Visualise the effect of pvalue cutoffs on cluster FWER and TPR
+
+> Appendix 2
+
+```{R, message=FALSE, eval=F}
+
+library(viridis)
+cols=c(viridis_pal(option = "C")(8))
+
+png("ClusterFWER_allSignifT.png", width = 18, height = 8, units = "cm", res=400)
+scenario="03_BWAS_uncorrected_allModa"
+par(mfrow=c(1,3))
+for (NNN in c(10,100,1000)){
+if (NNN==10){
+  par(mar=c(4,4,1,1))
+} else {
+  par(mar=c(4,2,1,1))
+}
+    res=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,".txt"), header=T)
+
+if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+       if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra2.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra2.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+   # initialise plot 
+  iii=1
+  plot( -log(res$signifT, base = 10), res$clusterFWER, ylim=c(0,1), ylab=ifelse(NNN==10, "Cluster FWER", ""), xlab="Significance threshold", col="white")  
+
+for (scenario in c("03_BWAS_uncorrected_allModa", "09_BWAS_ICVagesex_allModa", "04_BWAS_5globalPCs_allModa", "05_BWAS_10globalPCs_allModa", "06_BWAS_10specificPCs_allModa", "07_BWAS_MOA_allModa","15_BWAS_MOA_allModa_FE", "10_BWAS_MOA_multiORM_QC_allModa")){
+
+    res=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,".txt"), header=T)
+if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+    if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra2.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra2.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+  lines(-log(res$signifT, base = 10), res$clusterFWER, ylim=c(0,1) , col=cols[iii], pch=20)
+iii=iii+1
+}
+  abline(h=0.05, col="lightgrey", lty=2, lwd=1)
+    abline(h=0.2, col="grey", lty=2, lwd=2)
+}
+
+legend(x = 18, y = 1, c("No covariates", "Age, Sex, ICV reg.","5 global PCs", "10 global PCs", "10 modality spe. PCs", "LMM (global BRM)", "LMM with covariates", "LMM (multi. BRM)"),  lwd=2,
+       horiz=F, bty="n", col=cols, cex = 0.8   )
+dev.off()
+
+```
+
+
+
+```{R, message=FALSE, eval=F}
+
+
+png("TPR_allSignifT.png", width = 18, height = 8, units = "cm", res=400)
+scenario="03_BWAS_uncorrected_allModa"
+par(mfrow=c(1,3))
+for (NNN in c(10,100,1000)){
+if (NNN==10){
+  par(mar=c(4,4,1,1))
+} else {
+  par(mar=c(4,2,1,1))
+}
+    res=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,".txt"), header=T)
+
+if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+       if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra2.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra2.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+   # initialise plot 
+  iii=1
+  plot( -log(res$signifT, base = 10), res$Power, ylim=c(0,1), ylab=ifelse(NNN==10, "True Positive Rate", ""), xlab="Significance threshold", col="white")  
+
+for (scenario in c("03_BWAS_uncorrected_allModa", "09_BWAS_ICVagesex_allModa", "04_BWAS_5globalPCs_allModa", "05_BWAS_10globalPCs_allModa", "06_BWAS_10specificPCs_allModa", "07_BWAS_MOA_allModa","15_BWAS_MOA_allModa_FE", "10_BWAS_MOA_multiORM_QC_allModa")){
+
+    res=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,".txt"), header=T)
+if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+    if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra2.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra2.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+  lines(-log(res$signifT, base = 10), res$Power, ylim=c(0,1) , col=cols[iii], pch=20)
+iii=iii+1
+}
+  abline(h=0.05, col="grey", lty=2, lwd=3)
+}
+
+legend(x = 18, y = 1, c("No covariates", "Age, Sex, ICV reg.","5 global PCs", "10 global PCs", "10 modality spe. PCs", "LMM (global BRM)", "LMM with covariates", "LMM (multi. BRM)"),  lwd=2,
+       horiz=F, bty="n", col=cols, cex = 0.8   )
+dev.off()
+
+```
+
+# ROC-like curve - TPR as a function of cluster FWER
+
+```{R, message=FALSE, eval=F}
+
+library(viridis)
+cols=c(viridis_pal(option = "C")(8))
+cols2=c(viridis_pal(option = "C", alpha = 0.2)(8))
+
+png("ROC_clusterFWER.png", width = 18, height = 8, units = "cm", res=400)
+par(mfrow=c(1,3))
+for (NNN in c(10,100,1000)){
+if (NNN==10){
+  par(mar=c(4,4,1,1))
+} else {
+  par(mar=c(4,2,1,1))
+}
+    res=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,".txt"), header=T)
+
+if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+       if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra2.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", "03_BWAS_uncorrected_allModa", "_NVertices", NNN,"_extra2.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+   # initialise plot 
+  iii=1
+  plot( res$clusterFWER, res$Power, ylim=c(0,1), ylab=ifelse(NNN==10, "Statistical Power", ""), xlab="Cluster FWER", col="white")  
+
+for (scenario in c("03_BWAS_uncorrected_allModa", "09_BWAS_ICVagesex_allModa", "04_BWAS_5globalPCs_allModa", "05_BWAS_10globalPCs_allModa", "06_BWAS_10specificPCs_allModa", "07_BWAS_MOA_allModa","15_BWAS_MOA_allModa_FE", "10_BWAS_MOA_multiORM_QC_allModa")){
+
+    res=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,".txt"), header=T)
+if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+    if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra2.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra2.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+  lines(res$clusterFWER, res$Power, ylim=c(0,1) , col=cols[iii], pch=20)
+  polygon(c(rev(res$clusterFWER), res$clusterFWER), c(rev(res$Power+res$SE_power), res$Power-res$SE_power), col = cols2[iii] , border = NA)
+
+iii=iii+1
+}
+  abline(v=0.2, col="grey", lty=2, lwd=1)
+}
+
+legend(x = 0.4, y = 1, c("No covariates", "Age, Sex, ICV reg.","5 global PCs", "10 global PCs", "10 modality spe. PCs", "LMM (global BRM)", "LMM with covariates", "LMM (multi. BRM)"),  lwd=2,
+       horiz=F, bty="n", col=cols, cex = 0.8   )
+dev.off()
+
+```
+
+
+
+<br><br>
