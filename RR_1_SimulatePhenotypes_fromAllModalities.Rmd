@@ -11,7 +11,7 @@ output:
 # You need these libraries to run this template:
 library(rmarkdown)    # install.packages("rmarkdown") 
 library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
-
+#rmarkdown::render_site()
 ```
 
 # Simulate associated phenotypes 
@@ -63,7 +63,7 @@ done |; " 1 4G SimulPheno 10:00:00 "-acct=UQ-IMB-CNSG"
 
 # Simulate non-associated phenotypes
 
-```{R, message=FALSE}
+```{R, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 setwd(wd)

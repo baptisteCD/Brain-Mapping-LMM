@@ -159,7 +159,7 @@ done
 
 ## Merge result across iterations
 
-```{R, message=FALSE}
+```{R, message=FALSE, eval=F}
 
 library(matrixStats)
 
