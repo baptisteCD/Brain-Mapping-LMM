@@ -1,0 +1,208 @@
+---
+title: "Run brain mapping analyses on simulated data"
+author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
+output:
+  epuRate::PCTG:
+    toc: TRUE
+    code_folding: "show"
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# You need these libraries to run this template:
+library(rmarkdown)    # install.packages("rmarkdown") 
+library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
+
+```
+
+# Create environment and output folders
+
+```{bash, message=FALSE, eval=F}
+
+wd="path/to/working/directory"
+cd $wd
+
+mkdir -p ${wd}/03_BWAS_uncorrected_allModa
+mkdir -p ${wd}/09_BWAS_ICVagesex_allModa
+mkdir -p ${wd}/04_BWAS_5globalPCs_allModa
+mkdir -p ${wd}/05_BWAS_10globalPCs_allModa
+mkdir -p ${wd}/06_BWAS_10specificPCs_allModa
+mkdir -p ${wd}/07_BWAS_MOA_allModa
+mkdir -p ${wd}/10_BWAS_MOA_multiORM_QC_allModa
+mkdir -p ${wd}/15_BWAS_MOA_allModa_FE
+
+
+```
+
+
+# 1) GLM no covariates
+
+```{bash, message=FALSE, eval=F}
+
+wd="path/to/working/directory"
+cd ${wd}/03_BWAS_uncorrected_allModa
+
+${wd}/qsubshcom " 
+for NNN in 0 10 100 1000 |;
+do |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --out "${wd}"/03_BWAS_uncorrected_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID} |;
+done |;
+done |;
+ " 1 50G BWAS03_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+
+```
+
+# GLM with ICV, age and sex as covariates 
+
+```{bash, message=FALSE, eval=F}
+
+cd $wd/09_BWAS_ICVagesex_allModa
+
+${wd}/qsubshcom " 
+for NNN in 0 10 100 1000 |;
+do |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/ageSexIcv.txt --out "${wd}"/09_BWAS_ICVagesex_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID} |;
+done |; " 1 50G BWAS09_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+
+```
+
+# GLM with 5 global PCs as covariates
+
+```{bash, message=FALSE, eval=F}
+
+cd ${wd}/04_BWAS_5globalPCs_allModa
+
+${wd}/qsubshcom " 
+for NNN in 0 10 100 1000 |;
+do |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/PC.5global.eigenvec --out "${wd}"/04_BWAS_5globalPCs_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID} |;
+done |;
+done |;
+ " 1 50G BWAS04_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+
+```
+
+# GLM with 10 global PCs as covariates
+
+```{bash, message=FALSE, eval=F}
+
+cd $wd/05_BWAS_10globalPCs_allModa
+
+${wd}/qsubshcom " 
+for NNN in 0 10 100 1000 |;
+do |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/PC.10global.eigenvec --out "${wd}"/05_BWAS_10globalPCs_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID} |;
+done |;
+ " 1 50G BWAS05_allModa 10:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+
+
+```
+
+# GLM with 10 measurement specific PCs as covariates
+
+```{bash, message=FALSE, eval=F}
+
+cd $wd/06_BWAS_10specificPCs_allModa
+
+${wd}/qsubshcom " 
+for moda in area thickness thick LogJacs |;
+do |;
+for NNN in 0 10 100 1000 |;
+do |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.\${moda}.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/PC.10specific.\${moda}.eigenvec --out "${wd}"/06_BWAS_10specificPCs_allModa/BWAS_NVertices\${NNN}_\${moda}_Niter\${TASK_ID} |;
+done |;
+done |;
+ " 1 40G BWAS06_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+
+```
+
+> Combine results across the different measurement types
+
+```{bash, message=FALSE, eval=F}
+
+cd $wd/06_BWAS_10specificPCs_allModa
+
+${wd}/qsubshcom " 
+for NNN in 0 |;
+do |;
+tail -n +1 "${wd}"/06_BWAS_10specificPCs_allModa/BWAS_NVertices\${NNN}_thickness_Niter\${TASK_ID}.linear > "${wd}"/06_BWAS_10specificPCs_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID}.linear |;
+for moda in area thick LogJacs |;
+do |;
+tail -n +2 "${wd}"/06_BWAS_10specificPCs_allModa/BWAS_NVertices\${NNN}_\${moda}_Niter\${TASK_ID}.linear >> "${wd}"/06_BWAS_10specificPCs_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID}.linear |;
+done |;
+done |;
+ " 1 4G BWAS_allModa_putTogether 01:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+
+```
+
+# LMM with global BRM
+
+```{bash, message=FALSE, eval=F}
+
+cd $wd/07_BWAS_MOA_allModa
+for NNN in 0 10 100 1000
+do 
+${wd}/qsubshcom " if [ ! -f "${wd}"/07_BWAS_MOA_allModa/BWAS_NVertices"${NNN}"_Niter\${TASK_ID}.moa ] |;
+then |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices"${NNN}"_Niter\${TASK_ID}.phen --orm "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC --remove "${wd}"/ID_UKB_replication.txt --moa --out "${wd}"/07_BWAS_MOA_allModa/BWAS_NVertices"${NNN}"_Niter\${TASK_ID} |;
+fi " 1 60G BWAS07_${NNN}_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+done 
+
+```
+
+# LMM with four variance components specific to each measurement type
+
+```{bash, message=FALSE, eval=F}
+
+cd $wd/10_BWAS_MOA_multiORM_QC_allModa
+
+for NNN in 0 10 100 1000
+do
+${wd}/qsubshcom " 
+if [ ! -f "${wd}"/10_BWAS_MOA_multiORM_QC_allModa/BWAS_NVertices"${NNN}"_Niter\${TASK_ID}.moa ] |;
+then |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices"${NNN}"_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --moa --multi-orm "${wd}"/fwhm0.fsaverage.QC.ormlist --out "${wd}"/10_BWAS_MOA_multiORM_QC_allModa/BWAS_NVertices"${NNN}"_Niter\${TASK_ID} --reml-maxit 1000 |;
+fi |; 
+ " 1 60G BWAS10_${NNN} 48:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+done 
+
+
+```
+
+# LMM + covariates (ICV, age, sex)
+
+```{bash, message=FALSE, eval=F}
+
+cd $wd/15_BWAS_MOA_allModa_FE
+
+for NNN in 0 10 100 1000
+do 
+${wd}/qsubshcom " if [ ! -f "${wd}"/15_BWAS_MOA_allModa_FE/BWAS_NVertices"${NNN}"_Niter\${TASK_ID}.moa ] |;
+then |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices"${NNN}"_Niter\${TASK_ID}.phen --orm "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC --remove "${wd}"/ID_UKB_replication.txt --qcovar "${wd}"/ageSexIcv.txt --moa --out "${wd}"/15_BWAS_MOA_allModa_FE/BWAS_NVertices"${NNN}"_Niter\${TASK_ID} |;
+fi " 1 60G BWAS15_${NNN}_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+done 
+
+```
+
+# Check progress of model computation
+
+```{bash, message=FALSE, eval=F}
+
+for NNN in 0 10 100 1000
+do 
+echo ${NNN}
+ls ${wd}/03_BWAS_uncorrected_allModa/*NVertices${NNN}_*.linear | wc -l
+ls ${wd}/04_BWAS_5globalPCs_allModa/*NVertices${NNN}_*.linear | wc -l
+ls ${wd}/05_BWAS_10globalPCs_allModa/*NVertices${NNN}_*.linear | wc -l
+ls ${wd}/06_BWAS_10specificPCs_allModa/*NVertices${NNN}_*.linear | wc -l
+ls ${wd}/07_BWAS_MOA_allModa/*NVertices${NNN}_*.moa | wc -l
+ls ${wd}/09_BWAS_ICVagesex_allModa/*NVertices${NNN}_*.linear | wc -l
+ls ${wd}/10_BWAS_MOA_multiORM_QC_allModa/*NVertices${NNN}_*.moa | wc -l
+done
+
+```
+
+
+
+<br><br>

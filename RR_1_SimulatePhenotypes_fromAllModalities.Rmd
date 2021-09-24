@@ -1,0 +1,80 @@
+---
+title: "Simulate traits from real MRI images"
+author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
+output:
+  epuRate::PCTG:
+    toc: TRUE
+    code_folding: "show"
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# You need these libraries to run this template:
+library(rmarkdown)    # install.packages("rmarkdown") 
+library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
+
+```
+
+# Simulate associated phenotypes 
+
+## Draw lists of associated vertices
+
+> We use the list of vertices stored in the .opi file (OSCA binary format)
+
+```{bash, message=FALSE , eval=F}
+
+wd="path/to/working/directory"
+cd $wd
+
+mkdir -p ${wd}/01_vertexSelection
+
+${wd}/qsubshcom " for iter in {1..100} |;
+do |;
+for NNN in 10 100 1000 |;
+do |;
+shuf -n \${NNN} "${wd}"/00_BodFiles/AllVertices.fwhm0.fsaverage.UKB10K.QCed.STD.opi | awk '{ print \$2 }'  > "${wd}"/01_vertexSelection/NVertices\${NNN}_Niter\${iter} |;
+done |;
+done |;
+done " 1 4G DrawVertices_all 10:00:00 "-acct=UQ-IMB-CNSG" 
+
+```
+
+## Generate phenotypes 
+
+```{bash, message=FALSE, eval=F}
+
+wd="path/to/working/directory"
+cd $wd
+
+mkdir -p ${wd}/02_phenotypesSimul
+
+${wd}/qsubshcom " 
+for iter in {1..100} |;
+do |;
+NNN=10 |;
+"${wd}"/osca_17062019 --simu-qt --simu-rsq 0.2 --befile "${rd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --simu-causal-loci "${wd}"/01_vertexSelection/NVertices\${NNN}_Niter\${iter} --out "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${iter}  |;
+NNN=100 |;
+"${wd}"/osca_17062019 --simu-qt --simu-rsq 0.5 --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --simu-causal-loci "${wd}"/01_vertexSelection/NVertices\${NNN}_Niter\${iter} --out "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${iter}  |;
+NNN=1000 |;
+"${wd}"/osca_17062019 --simu-qt --simu-rsq 0.4 --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --simu-causal-loci "${wd}"/01_vertexSelection/NVertices\${NNN}_Niter\${iter} --out "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${iter}  |;
+done |;
+done |; " 1 4G SimulPheno 10:00:00 "-acct=UQ-IMB-CNSG" 
+
+```
+
+# Simulate non-associated phenotypes
+
+```{R, message=FALSE}
+
+wd="path/to/working/directory"
+setwd(wd)
+
+for (iter in 1:100){
+phen=read.table("02_phenoytpesSimul/NVertices10_area_Niter1.phen")  
+phen$V3=rnorm(n = length(phen$V1), mean = 0, sd = 1)
+write.table(phen, paste0("02_phenoytpesSimul/NVertices", 00, "_Niter", iter,".phen"), col.names = F, row.names = F, quote = F)
+
+}
+
+```
+
+<br><br>

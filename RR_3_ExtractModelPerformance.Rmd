@@ -1,0 +1,273 @@
+---
+title: "Run brain mapping analyses on simulated data"
+author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
+output:
+  epuRate::PCTG:
+    toc: TRUE
+    code_folding: "show"
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# You need these libraries to run this template:
+library(rmarkdown)    # install.packages("rmarkdown") 
+library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
+
+```
+
+# Create environment and output folders
+
+```{bash, message=FALSE, eval=F}
+
+wd="path/to/working/directory"
+cd $wd
+
+mkdir -p ${wd}/03_BWAS_uncorrected_allModa_clusterFWER
+mkdir -p ${wd}/04_BWAS_5globalPCs_allModa_clusterFWER
+mkdir -p ${wd}/05_BWAS_10globalPCs_allModa_clusterFWER
+mkdir -p ${wd}/06_BWAS_10specificPCs_allModa_clusterFWER
+mkdir -p ${wd}/07_BWAS_MOA_allModa_clusterFWER
+mkdir -p ${wd}/08_BWAS_MOA_modaSpeBRM_allModa_clusterFWER
+mkdir -p ${wd}/09_BWAS_ICVagesex_allModa_clusterFWER
+mkdir -p ${wd}/10_BWAS_MOA_multiORM_QC_allModa_clusterFWER
+mkdir -p ${wd}/15_BWAS_MOA_allModa_FE_clusterFWER
+
+```
+
+# Extract model performance - non-associated phenotypes
+
+```{bash, message=FALSE, eval=F}
+
+for scenario in 03_BWAS_uncorrected_allModa  04_BWAS_5globalPCs_allModa 05_BWAS_10globalPCs_allModa 06_BWAS_10specificPCs_allModa 07_BWAS_MOA_allModa 09_BWAS_ICVagesex_allModa 10_BWAS_MOA_multiORM_QC_allModa 15_BWAS_MOA_allModa_FE
+do
+mkdir -p $wd/${scenario}_clusterFWER
+cd $wd/${scenario}_clusterFWER
+${wd}/qsubshcom " module load R/3.5.0 |; 
+cd /scratch/project/genetic_data_analysis/uqbcouvy/56_BWAS |;
+for NNN in 0 |;
+do |;
+if [ ! -f "${wd}"/"${scenario}"_clusterFWER/Results_clusterFWER_NVertices\${NNN}_iter\${TASK_ID}.txt ] |;
+then |;
+Rscript --no-save 'RR_2.2_BWAS_FWER_wrapper_allModa_Null.R' "${wd}"/"${scenario}" \${TASK_ID} \${NNN} "${wd}"/"${scenario}"_clusterFWER |;
+fi |;
+done |;
+ " 1 10G RR_FWER_${scenario}_NNN0 04:00:00 "-array=1-100 -acct=UQ-IMB-CNSG"
+done
+
+```
+
+# Extract model performances - associated phenotypes
+
+```{bash, message=FALSE, eval=F}
+
+for scenario in 03_BWAS_uncorrected_allModa  04_BWAS_5globalPCs_allModa 05_BWAS_10globalPCs_allModa 06_BWAS_10specificPCs_allModa 07_BWAS_MOA_allModa 09_BWAS_ICVagesex_allModa 10_BWAS_MOA_multiORM_QC_allModa 15_BWAS_MOA_allModa_FE
+do
+
+cd $wd/${scenario}_clusterFWER
+${wd}/qsubshcom " module load R/3.5.0 |; 
+cd "${wd}" |;
+for NNN in 10 100 1000 |;
+do |;
+Rscript --no-save 'RR_2.3_BWAS_FWER_wrapper_allModa.R' "${wd}"/"${scenario}" \${TASK_ID} \${NNN} "${wd}"/"${scenario}"_clusterFWER |;
+Rscript --no-save 'RR_2.4_BWAS_clusterFWER_wrapper_arrayjob_allModa.R' "${wd}"/"${scenario}" 100 \${NNN} "${wd}"/"${scenario}"_clusterFWER \${TASK_ID} |;
+done |;
+ " 1 10G RR_FWER_${scenario} 48:00:00 "-array=1-100 -acct=UQ-IMB-CNSG"
+done
+
+```
+
+## Check progress of computation 
+
+```{bash, message=FALSE, eval=F}
+
+for NNN in 0 10 100 1000
+do 
+echo ${NNN}
+ls ${wd}/03_BWAS_uncorrected_allModa_clusterFWER/Summary_BWAS_NVertices${NNN}_* | wc -l
+ls ${wd}/04_BWAS_5globalPCs_allModa_clusterFWER/Summary_BWAS_NVertices${NNN}_* | wc -l
+ls ${wd}/05_BWAS_10globalPCs_allModa_clusterFWER/Summary_BWAS_NVertices${NNN}_* | wc -l
+ls ${wd}/06_BWAS_10specificPCs_allModa_clusterFWER/Summary_BWAS_NVertices${NNN}_* | wc -l
+ls ${wd}/07_BWAS_MOA_allModa_clusterFWER/Summary_BWAS_NVertices${NNN}_* | wc -l
+ls ${wd}/09_BWAS_ICVagesex_allModa_clusterFWER/Summary_BWAS_NVertices${NNN}_* | wc -l
+ls ${wd}/10_BWAS_MOA_multiORM_QC_allModa_clusterFWER/Summary_BWAS_NVertices${NNN}_* | wc -l
+dones
+
+```
+
+## Merge results across all iterations
+
+```{R, message=FALSE, eval=F}
+
+setwd("path/to/working/directory")
+
+for (NNN in c(0, 10, 100, 1000)){
+  for (scenario in c("03_BWAS_uncorrected_allModa" ,"04_BWAS_5globalPCs_allModa" ,"05_BWAS_10globalPCs_allModa"  ,"06_BWAS_10specificPCs_allModa","07_BWAS_MOA_allModa" ,"09_BWAS_ICVagesex_allModa" ,"10_BWAS_MOA_multiORM_QC_allModa" ,"15_BWAS_MOA_allModa_FE") ){
+    res=NULL
+    for (iter in 1:100){
+      if (file.exists(paste0(scenario, "_clusterFWER/Results_clusterFWER_NVertices", NNN, "_iter", iter, ".txt"))){
+        aa=read.table(paste0(scenario, "_clusterFWER/Results_clusterFWER_NVertices", NNN, "_iter", iter, ".txt"), header=T)
+        res=rbind(res,c(iter, aa))
+      } else { res=rbind(res,NA) }
+      write.table(res,paste0( scenario, "_clusterFWER/Results_clusterFWER_NVertices", NNN, ".txt" ), col.names=T, row.names=F)
+     
+    }
+    }
+}
+
+# Run loop and concatenate results
+  for ( scenario in c("03_BWAS_uncorrected_allModa" ,"04_BWAS_5globalPCs_allModa" ,"05_BWAS_10globalPCs_allModa"  ,"06_BWAS_10specificPCs_allModa","07_BWAS_MOA_allModa" ,"09_BWAS_ICVagesex_allModa" ,"10_BWAS_MOA_multiORM_QC_allModa" ,"15_BWAS_MOA_allModa_FE") ) {
+    for ( NNN in c(0, 10, 100, 1000)){
+      print(NNN)
+       if ( file.exists(paste0( scenario , "_clusterFWER/Summary_BWAS_NVertices", NNN, "_Niter", 1))){
+allbwas=read.table(paste0( scenario , "_clusterFWER/Summary_BWAS_NVertices", NNN, "_Niter", 2), header=T)
+       } else {
+  allbwas=NA
+}
+for (iter in 2:100){
+  if ( file.exists(paste0( scenario , "_clusterFWER/Summary_BWAS_NVertices", NNN, "_Niter", iter))){
+  bwas=read.table(paste0( scenario , "_clusterFWER/Summary_BWAS_NVertices", NNN,  "_Niter", iter), header=T)
+  allbwas=rbind(allbwas, bwas)
+  } else { 
+  allbwas=rbind(allbwas, NA)
+    }
+}
+write.table(allbwas, paste0( scenario, "_BWASresults_", NNN ,".txt"), col.names = T, row.names = F)
+    }}
+
+```
+
+# Statistical power - cluster FWER results varying the significance threshold
+
+```{bash, message=FALSE, eval=F}
+
+wd="path/to/working/directory"
+
+for scenario in 03_BWAS_uncorrected_allModa  09_BWAS_ICVagesex_allModa  04_BWAS_5globalPCs_allModa 05_BWAS_10globalPCs_allModa 06_BWAS_10specificPCs_allModa 07_BWAS_MOA_allModa 10_BWAS_MOA_multiORM_QC_allModa 15_BWAS_MOA_allModa_FE
+ 
+do
+cd $wd/${scenario}_clusterFWER
+${wd}/qsubshcom " module load R/3.5.0 |; 
+cd /scratch/project_mnt/S0007/uqbcouvy/56_BWAS/ |;
+for NNN in 10 100 1000 |;
+do |;
+Rscript --no-save 'RR_2.5.3_BWAS_clusterFWER_wrapper_arrayjob_allModa_varySignifThreshold.R' "${wd}"/"${scenario}" 100 \${NNN} "${wd}"/"${scenario}"_clusterFWER \${TASK_ID}  |;
+done |;
+ " 1 10G RR_FWER_${scenario}_allSignif_extra 48:00:00 "-array=1-100 -acct=UQ-IMB-CNSG"
+done
+
+```
+
+## Merge result across iterations
+
+```{R, message=FALSE}
+
+library(matrixStats)
+
+for (NNN in c(10)){
+for (scenario in c( "03_BWAS_uncorrected_allModa", "04_BWAS_5globalPCs_allModa", "05_BWAS_10globalPCs_allModa", "07_BWAS_MOA_allModa", "06_BWAS_10specificPCs_allModa", "09_BWAS_ICVagesex_allModa", "10_BWAS_MOA_multiORM_QC_allModa", "15_BWAS_MOA_allModa_FE") ){
+restot=restotTP=NULL
+
+  for (iter in 1:100){
+if (file.exists(paste0(wd, scenario, "_clusterFWER/Results_clusterFWER_NVertices", NNN,"_iter", iter,"_allSignifT.txt"))){
+res=read.table(paste0(wd, scenario, "_clusterFWER/Results_clusterFWER_NVertices", NNN,"_iter", iter,"_allSignifT.txt"))
+res=rbind(res[dim(res)[1],], res[1:(dim(res)[1]-1),])
+    
+colnames(res)
+res$nbTPclusters=rowSums(res[,c("nbTPclusters_LogJacs","nbTPclusters_area","nbTPclusters_thickness","nbTPclusters_thick" )])
+res$nbTPclusters
+
+res$NumberFalsePositiveClusters=rowSums(res[,c("NumberFalsePositiveClusters_LogJacs","NumberFalsePositiveClusters_area","NumberFalsePositiveClusters_thickness","NumberFalsePositiveClusters_thick" )])
+res$NumberFalsePositiveClusters
+
+res$FDR=res$NumberFalsePositiveClusters/(res$NumberFalsePositiveClusters+res$nbTPclusters)
+res$FDR
+
+restot=cbind(restot, res$NumberFalsePositiveClusters)
+restotTP=cbind(restotTP, res$nbTPclusters/NNN)
+} else {
+restot=cbind(restot, NA)
+restotTP=cbind(restotTP, NA)
+print(paste0(wd, scenario, "_clusterFWER/Results_clusterFWER_NVertices", NNN,"_iter", iter,"_allSignifT.txt"))
+  }
+}
+restot[which(restot>0, arr.ind = T)]=1
+ 
+restotAll=cbind(res$c.signifTList., rowMeans(restot, na.rm = T), rowMeans(restotTP, na.rm = T), rowSds(restot, na.rm = T)/sqrt(100), rowSds(restotTP, na.rm = T)/sqrt(100))
+colnames(restotAll)=c("signifT", "clusterFWER", "Power", "SE_cFWER", "SE_power")
+
+write.table(restotAll, paste0(wd, "power_FWER_allSignifT_",scenario, "_NVertices", NNN, ".txt"), row.names = F )
+}
+}
+
+```
+
+## Extract statistical power for a fixed cluster FWER
+
+```{R, message=FALSE, eval=F}
+
+setFWER=0.20
+
+wd="/scratch/project/genetic_data_analysis/uqbcouvy/56_BWAS/"
+scenario="03_BWAS_uncorrected_allModa"
+
+for (NNN in c(10,100,1000)){
+
+comRes=NULL
+for (scenario in c("03_BWAS_uncorrected_allModa", "09_BWAS_ICVagesex_allModa", "04_BWAS_5globalPCs_allModa", "05_BWAS_10globalPCs_allModa", "06_BWAS_10specificPCs_allModa", "07_BWAS_MOA_allModa","15_BWAS_MOA_allModa_FE","10_BWAS_MOA_multiORM_QC_allModa" )){
+
+    res=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,".txt"), header=T)
+if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}
+  if (file.exists(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra2.txt"))){
+    res2=read.table(paste0("BWAS_summary_fwer/power_FWER_allSignifT_", scenario, "_NVertices", NNN,"_extra2.txt"), header=T)
+ res=rbind(res, res2[-1,])
+}  
+res2=res[which(res$clusterFWER<setFWER),]
+comRes=rbind(comRes, c(scenario, res2[1,])   ) 
+     
+}
+print(comRes)
+write.table(comRes, paste0("BWAS_summary_fwer/power_FWER_allSignifT_allScenarios_", NNN,"_FWER",setFWER , ".txt"), row.names = F)
+
+}
+
+# Visualise results
+resTable=read.table("BWAS_summary_fwer/power_FWER_allSignifT_allScenarios_10_FWER0.2.txt", header=T)
+paste0(signif(resTable$Power,2), " (", signif(resTable$SE_power,2), ")")
+
+resTable=read.table("BWAS_summary_fwer/power_FWER_allSignifT_allScenarios_100_FWER0.2.txt", header=T)
+paste0(signif(resTable$Power,2), " (", signif(resTable$SE_power,2), ")")
+
+resTable=read.table("BWAS_summary_fwer/power_FWER_allSignifT_allScenarios_1000_FWER0.2.txt", header=T)
+paste0(signif(resTable$Power,2), " (", signif(resTable$SE_power,2), ")")
+```
+
+
+# Extract morphometricity estimates (LMM only)
+
+```{R, message=FALSE, eval=F}
+
+setwd("path/to/working/directory")
+
+for (scenario in c("07_BWAS_MOA_allModa_clusterFWER","10_BWAS_MOA_multiORM_QC_allModa","15_BWAS_MOA_allModa_FE")){
+for (NNN in c(0,10,100,1000)){
+  rsqres=NULL
+for (iter in 1:100){
+    rsq=NULL
+    if(file.exists(paste0(scenario,"/BWAS_NVertices", NNN,  "_Niter", iter, ".rsq"))){
+    rsq=read.table(paste0(scenario,"/BWAS_NVertices", NNN,  "_Niter", iter, ".rsq"), fill=T, stringsAsFactors = F )
+    rsqres=rbind(rsqres, c(iter, rsq[5,2]))
+    } else {
+      rsq=NA
+      rsqres=rbind(rsqres, c(iter, rsq))
+    }
+}
+  write.table(rsqres, paste0(scenario, "/BWAS_morphometricity_allModa_N", NNN, ".txt"), row.names = F, col.names = F, quote=F)
+}
+}
+```
+
+
+<br><br>
