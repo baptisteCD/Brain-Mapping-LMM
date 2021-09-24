@@ -151,4 +151,65 @@ write.xlsx(resall, "../../prediction_BWAS_results_topVertexCluster_wCovariates_a
 
 ```
 
+# Plot corresponding to Figure 4
+
+```{R, echo=FALSE, eval=F}
+
+labelsVar=c("Age", "BMI", "Fluid IQ", "Sex", "Smoking status")
+morphom=c(0.91, 0.59,  0.16, 0.99, 0.15)
+
+library(viridis)
+png( paste0("../../Prediction_plot_intoUKB_OASIS_topVertexCluster_wCovariates_allPhenoModels_Figure3_R1IEEE.png"), width = 18, height = 10, units = "cm", res = 400)
+
+par(mar=c(0.5,4,0.5,0.5))
+nplots=5
+layout(matrix(data = c(1,2,2,3,4,4,5,6,6,7,8,8,9,10,10), ncol = 5, byrow = F ) )
+
+cols=c(viridis_pal(option = "C")(8))
+nscenarios=8
+
+for (iii in c(2,3,1,4,5)){
+pre=read.xlsx("../../prediction_intoOASIS_topVertexCluster_wCovariates_N1006_allPhenoModels_R1IEEE.xlsx", sheetIndex = iii, as.data.frame = T, colClasses = c("character", rep( "numeric", 10) ) )
+pre=pre[1:nscenarios,]
+
+preUKB=read.xlsx("../../prediction_BWAS_results_topVertexCluster_wCovariates_allPhenoModels_R1IEEE.xlsx", sheetIndex = iii, as.data.frame = T, colClasses = c("character", rep( "numeric", 10) ) )
+preUKB=preUKB[1:nscenarios,]
+
+# Number signif clusters
+par(mar=c(0.5,2,0.5,0.5))
+if (iii ==2 ){par(mar=c(0.5,3,0.5,0.5))} 
+
+plot(1:nscenarios, preUKB$NbFeatures, ylab= "", xaxt="n", xlab="", pch=19, lwd=1, col=cols,main = labelsVar[iii], cex.main=0.7)
+grid()
+if (iii ==2 ){title(ylab="Significant clusters", line=2, cex.lab=1)}
+
+
+# Correlation UKB
+ par(mar=c(8,2,0.5,0.5)) 
+if (iii ==2 ){par(mar=c(8,3,0.5,0.5))}
+
+plot(1:nscenarios, preUKB$cor, ylim=c(0,1), ylab= "", xaxt="n", xlab="", pch=20, lwd=1, col=cols, cex.main=0.7)
+arrows(x0 = 1:nscenarios, y0 = preUKB$lb_CI95., x1 =1:nscenarios, y1 = preUKB$ub_CI95.,  code=3,length=0.05,angle=90,col='black', lwd=1 )
+abline(h=sqrt(morphom[iii]), lty=2, lwd=2, col="darkgrey")
+
+points(1:nscenarios, pre$cor, ylim=c(0,1), pch=8, lwd=1, col=cols)
+arrows(x0 = 1:nscenarios, y0 = pre$lb_CI95., x1 =1:nscenarios, y1 = pre$ub_CI95.,  code=3,length=0.05,angle=90,col='black', lwd=1 )
+grid()
+#legend
+if (iii == 1){
+  labs=c("No covariates", "Sex, ICV reg.","5 global PCs", "10 global PCs", "10 modality spe. PCs", "LMM (global BRM)","LMM with covariates",  "LMM (multi. BRM)")
+}else if (iii == 4){
+  labs=c("No covariates", "Age, ICV reg.","5 global PCs", "10 global PCs", "10 modality spe. PCs", "LMM (global BRM)","LMM with covariates",  "LMM (multi. BRM)")
+} else {
+  labs=c("No covariates", "Age, Sex, ICV reg.","5 global PCs", "10 global PCs", "10 modality spe. PCs", "LMM (global BRM)","LMM with covariates",  "LMM (multi. BRM)")
+
+}
+text(cex=1, x=c(1:nscenarios)+0.5, y=-0.1 , pos = 2, labels = labs, xpd=TRUE, srt=65) 
+if (iii ==2 ){title(ylab="Prediction accuracy", line=2, cex.lab=1)}
+
+}
+dev.off()
+
+```
+
 <br><br>
