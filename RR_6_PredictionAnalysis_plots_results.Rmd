@@ -18,7 +18,7 @@ library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
 
 # Plot corresponding to Figure 4
 
-```{R, echo=FALSE}
+```{R, echo=FALSE, eval=F}
 
 labelsVar=c("Age", "BMI", "Fluid IQ", "Sex", "Smoking status")
 morphom=c(0.91, 0.59,  0.16, 0.99, 0.15)

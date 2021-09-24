@@ -19,7 +19,7 @@ library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
 
 > as well as all signif vertices
 
-```{bash, echo=FALSE}
+```{bash, echo=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd
@@ -49,7 +49,7 @@ done
 
 > Dependencies - tables UKB etc...
 
-```{R, echo=FALSE}
+```{R, echo=FALSE, eval=F}
 
 signifT=0.05/652283/5
 library(xlsx)

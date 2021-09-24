@@ -88,7 +88,7 @@ res=cbind(res, allbwas[,statistic])
 
 > Inflation, power and false positive rate
 
-```{R, message=FALSE}
+```{R, message=FALSE, eval=F}
 
 # Draw and write plots
 png( paste0("../../BWAS_summary_plots_AllModa_Figure1_R1IEEE_power.png"), width = 17, height = 21, units = "cm", res = 400)
@@ -165,7 +165,7 @@ dev.off()
 
 > Precision and prediction accuracy
 
-```{R, message=FALSE}
+```{R, message=FALSE, eval=F}
 
 # Draw and write plots
 png( paste0("../../BWAS_summary_plots_AllModa_Figure2_R1IEEE.png"), width = 17, height = 21, units = "cm", res = 400)
