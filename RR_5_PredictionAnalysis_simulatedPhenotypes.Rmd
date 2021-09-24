@@ -1,0 +1,154 @@
+---
+title: "Brain predictors on simulated phenotypes"
+author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
+output:
+  epuRate::PCTG:
+    toc: TRUE
+    code_folding: "show"
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# You need these libraries to run this template:
+library(rmarkdown)    # install.packages("rmarkdown") 
+library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
+
+```
+
+# Open BWAS results to extract list of top vertex per cluster
+
+> as well as all signif vertices
+
+```{bash, echo=FALSE}
+
+wd="path/to/working/directory"
+cd $wd
+
+for scenario in 03_BWAS_uncorrected_allModa 09_BWAS_ICVagesex_allModa 05_BWAS_10globalPCs_allModa 06_BWAS_10specificPCs_allModa 07_BWAS_MOA_allModa 10_BWAS_MOA_multiORM_QC_allModa 15_BWAS_MOA_allModa_FE  
+do
+for NNN in 10 100 1000 
+do
+${wd}/qsubshcom " module load R/3.5.0 |; 
+cd ${wd} |;
+R -e 'arg=commandArgs(TRUE) ; source(\"/"${wd}"/RR_5.1_BWASprediction.R\") ; makeOSCAscorefile(scenario=arg[1], iter=arg[2], NNN=arg[3])' --args "${scenario}" \${TASK_ID} "${NNN}" |;
+"${wd}"/osca_200220 --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --keep "${wd}"/ID_UKB_replication.txt --score "${wd}"/"${scenario}"_clusterFWER/BWAS_topVerticesCluster_NVertices"${NNN}"_Niter\${TASK_ID}.txt --out "${wd}"/"${scenario}"_clusterFWER/BWAS_predicted_topVerticesCluster_NVertices"${NNN}"_Niter\${TASK_ID} |;
+"${wd}"/osca_200220 --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --keep "${wd}"/ID_UKB_replication.txt --score "${wd}"/"${scenario}"_clusterFWER/BWAS_allSignifVertices_NVertices"${NNN}"_Niter\${TASK_ID}.txt --out "${wd}"/"${scenario}"_clusterFWER/BWAS_predicted_allSignifVertices_NVertices"${NNN}"_Niter\${TASK_ID} |;
+" 1 4G BWAS_${NNN}_${scenario}_pred_simul 01:00:00 "-array=1-100 -acct=UQ-IMB-CNSG"
+done 
+done
+
+
+```
+
+
+# Estimate prediction accuracy of predictors including covariates (fixed effects)
+
+> based on prediction accuracy we have assumed total the linear model, regressed out the covariates to perform BWAS   
+> Hence standardised BRS from vertices and unstandardised from covariates  
+
+
+> Dependencies - tables UKB etc...
+
+```{R, echo=FALSE}
+
+signifT=0.05/652283/5
+library(xlsx)
+
+for (pheno in c("Age_MRI","body_mass_index_bmi_f21001_2_0","fluid_intelligence_score_f20016_2_0","sexuses_datacoding_9_f31_0_0","smoking_status_f20116_2_0") ){
+res=resall=NULL
+
+for (scenario in  c("03_BWAS_uncorrected_realPheno", "09_BWAS_ICVagesex_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno", "07_BWAS_MOA_realPheno", "15_BWAS_MOA_allModa_FE_realPheno", "10_BWAS_MOA_multiORM_QC_realPheno") ){
+
+if (scenario %in% c("03_BWAS_uncorrected_realPheno",  "07_BWAS_MOA_realPheno" ,  "10_BWAS_moment2beta_realPheno", "10_BWAS_MOA_multiORM_QC_realPheno") ){
+TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=scale(TTrepli[,paste0("SCORE_", pheno, "_", scenario)])*sd(TTdisco[,pheno], na.rm = T)+mean(TTdisco[,pheno], na.rm = T) 
+}
+  
+  if (scenario == "04_BWAS_5globalPCs_realPheno" ){
+
+  # Predictor from covariates
+formu=paste0( pheno , " ~ "  , paste0("PC", 1:5, collapse = "+")  )
+mCov=glm(as.formula(formu), data = TTdisco)
+TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario)]=predict.glm(mCov, newdata = TTrepli)
+
+# Scale BRS for MAE and combine PC and vertex based scores
+TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=TTrepli[,paste0("SCORE_", pheno, "_", scenario)]* TTrepli[1,paste0("CNT_", pheno, "_", scenario)] +TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario) ]
+}
+
+if (scenario == "05_BWAS_10globalPCs_realPheno" ){
+
+# Predictor from covariates
+formu=paste0( pheno , " ~ "  , paste0("PC", 1:10, collapse = "+")  )
+mCov=glm(as.formula(formu), data = TTdisco)
+TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario)]=predict.glm(mCov, newdata = TTrepli)
+
+# Scale BRS for MAE and combine PC and vertex based scores
+TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=TTrepli[,paste0("SCORE_", pheno, "_", scenario)]* TTrepli[1,paste0("CNT_", pheno, "_", scenario)] +TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario) ]
+}
+
+  if (scenario == "06_BWAS_10specificPCs_realPheno" ){
+
+  # Predictor from covariates
+formu=paste0( pheno , " ~ "  , paste0("PC_thickness_", 1:10, collapse = "+")," + ", paste0("PC_area_", 1:10, collapse = "+")," + ", paste0("PC_thick_", 1:10, collapse = "+")," + ", paste0("PC_LogJacs_", 1:10, collapse = "+")  )
+mCov=glm(as.formula(formu), data = TTdisco)
+TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario)]=predict.glm(mCov, newdata = TTrepli)
+
+# Scale BRS for MAE and combine PC and vertex based scores
+TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=TTrepli[,paste0("SCORE_", pheno, "_", scenario)]* TTrepli[1,paste0("CNT_", pheno, "_", scenario)] +TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario) ]
+  }
+  
+if (scenario %in% c("09_BWAS_ICVagesex_realPheno", "15_BWAS_MOA_allModa_FE_realPheno") ){
+
+  # Predictor from covariates
+formu=paste0( pheno , " ~ Age_MRI + ICV + sexuses_datacoding_9_f31_0_0"    )
+mCov=glm(as.formula(formu), data = TTdisco)
+TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario)]=predict.glm(mCov, newdata = TTrepli)
+   summary(mCov)   
+
+# Scale BRS for MAE and combine PC and vertex based scores
+TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=TTrepli[,paste0("SCORE_", pheno, "_", scenario)]* TTrepli[1,paste0("CNT_", pheno, "_", scenario)] +TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario) ]
+
+}
+  
+# Models with no results
+    if (is.nan(TTrepli[1,paste0("SCORE2_", pheno, "_", scenario)]) ){
+    TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=0
+    } 
+      if (is.nan(TTrepli[1,paste0("SCORE_", pheno, "_", scenario)]) ){
+    TTrepli[,paste0("SCORE_", pheno, "_", scenario)]=0
+    } 
+# Evaluate total prediction 
+formu=paste0( pheno , " ~ "  , paste0("SCORE2_", pheno, "_", scenario) )
+m0=glm(as.formula(formu), data = TTrepli)
+mm=summary(m0)
+
+# Check R2
+if (scenario %in% c("09_BWAS_ICVagesex_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno") ){
+formu=paste0( pheno , " ~ "  , paste0("SCORE_", pheno, "_", scenario), " +", paste0("SCORE_Covariates_", pheno, "_", scenario) )
+} else {
+ formu=paste0( pheno , " ~ "  , paste0("SCORE_", pheno, "_", scenario)) 
+}
+m1=glm(as.formula(formu), data = TTrepli)
+mm1=summary(m1)
+
+# Store results
+res=c(scenario, 
+      TTrepli[1, paste0("CNT_", pheno, "_", scenario)], 
+      1- mm$deviance/mm$null.deviance, 
+      1- mm1$deviance/mm1$null.deviance,   
+      mm$aic, 
+      length(which(mm$coefficients[-1 ,"Pr(>|t|)"]< signifT)),
+      cor(TTrepli[,pheno], TTrepli[,paste0("SCORE2_", pheno, "_", scenario)], use="p"),
+      cor.test(TTrepli[,pheno], TTrepli[,paste0("SCORE2_", pheno, "_", scenario)], use="p")$conf.int[1],
+      cor.test(TTrepli[,pheno], TTrepli[,paste0("SCORE2_", pheno, "_", scenario)], use="p")$conf.int[2],
+      mean(abs(TTrepli[,pheno]-TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]), na.rm = T),
+      sd(abs(TTrepli[,pheno]-TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]), na.rm = T))
+resall=rbind(resall, res)
+}
+
+colnames(resall)=c("scenario", "NbFeatures", "R2","R2-2scores", "aic", "NbSignifVertices", "cor","lb_CI95%", "ub_CI95%", "mae", "sd_mae")
+write.xlsx(resall, "../../prediction_BWAS_results_topVertexCluster_wCovariates_allPhenoModels_R1IEEE.xlsx", row.names = F, sheetName = pheno, append = T)
+}
+
+```
+
+<br><br>

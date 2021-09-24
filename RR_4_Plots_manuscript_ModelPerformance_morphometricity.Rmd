@@ -1,0 +1,276 @@
+---
+title: "Analyses correcting for head size and Body size - new phenotypes"
+author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
+output:
+  epuRate::PCTG:
+    toc: TRUE
+    code_folding: "show"
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# You need these libraries to run this template:
+library(rmarkdown)    # install.packages("rmarkdown") 
+library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
+
+```
+
+# Functions 
+
+```{R, message=FALSE, eval=F}
+
+library(viridis)
+library(matrixStats)
+cols=c(viridis_pal(option = "C")(8)[])
+
+scenarList=c("03_BWAS_uncorrected_allModa", "09_BWAS_ICVagesex_allModa", "04_BWAS_5globalPCs_allModa", "05_BWAS_10globalPCs_allModa", "06_BWAS_10specificPCs_allModa", "07_BWAS_MOA_allModa", "15_BWAS_MOA_allModa_FE", "10_BWAS_MOA_multiORM_QC_allModa")
+nscenarios=length(scenarList)
+
+scenarLabel=c("No covariates", "Age, Sex, ICV reg.","5 global PCs", "10 global PCs", "10 modality spe. PCs", "LMM (global BRM)", "LMM with covariates", "LMM (multi. BRM)")
+
+# Extract values of interest
+compareScenarios=function(NNN, statistic){
+res=NULL
+  for ( scenario in scenarList) {
+allbwas=read.table(paste0("../../BWAS_summary_fwer/", scenario, "_BWASresults_", NNN ,".txt"), header=T)
+res=cbind(res, allbwas[,statistic])
+} 
+  return(res)
+}
+
+# Function to extract values of interest (cluster FWER and related)
+compareScenarios_clusterFWER=function(NNN, statistic){
+resSum=matrix(0, nrow = 100, ncol = nscenarios)
+for (moda in c("area", "thickness", "LogJacs", "thick")){
+  res=NULL
+  for ( scenario in scenarList) {
+allbwas=read.table(paste0("../../", scenario, "_clusterFWER/Results_clusterFWER_NVertices", NNN, ".txt"), header=T)
+res=cbind(res, allbwas[,paste0(statistic, "_", moda)])
+    }
+    resSum=resSum+res
+  } 
+  return(resSum)
+}
+
+# FDR
+compareScenariosFDR=function(NNN){
+nbFPclusters=compareScenarios_clusterFWER( NNN = NNN, statistic = "NumberFalsePositiveClusters")
+nbTPclusters=compareScenarios_clusterFWER( NNN = NNN, statistic = "nbTPclusters")
+FDR=nbFPclusters/(nbFPclusters+nbTPclusters)
+return(FDR)
+}
+
+# Extract a single column of cluster fwer
+compareScenarios_clusterFWER_singleMetric=function(NNN, statistic){
+  res=NULL
+  for ( scenario in scenarList) {
+allbwas=read.table(paste0("../../", scenario, "_clusterFWER/Results_clusterFWER_NVertices", NNN, ".txt"), header=T)
+res=cbind(res, allbwas[,statistic])
+    }
+  return(res)
+}
+
+# Extract prediction results
+compareScenarios_prediction=function(NNN, statistic){
+  res=NULL
+  for ( scenario in scenarList) {
+allbwas=read.table(paste0("../../15_BWAS_prediction_simulPheno/PredictionSummary_", scenario, "_N", NNN, ".txt"), header=T)
+res=cbind(res, allbwas[,statistic])
+    }
+  return(res)
+}
+
+
+```
+
+
+# First figure in manuscript
+
+> Inflation, power and false positive rate
+
+```{R, message=FALSE}
+
+# Draw and write plots
+png( paste0("../../BWAS_summary_plots_AllModa_Figure1_R1IEEE_power.png"), width = 17, height = 21, units = "cm", res = 400)
+par(mar=c(0.5,4,0.5,0.5))
+nplots=6
+layout(matrix(c(1:nplots,nplots , (nplots+1):(nplots*2), nplots*2, (nplots*2+1):(nplots*3),nplots*3 ), nrow = nplots+1, ncol = 3, byrow = F)) 
+
+for (NNN in c(10,100, 1000)){
+ # Loop
+  if (NNN != 10){ par(mar=c(0.5, 2, 0.5, 0.5)) }
+ 
+fwer=compareScenarios( NNN = NNN, statistic = "FWER_total")
+nbRes=colSums(!is.na(fwer))
+
+fwerCluster=compareScenarios_clusterFWER( NNN = NNN, statistic = "FWERcluster")
+fwerCluster[which(fwerCluster>0, arr.ind = T)]=1
+
+nbFPclusters=compareScenarios_clusterFWER( NNN = NNN, statistic = "NumberFalsePositiveClusters")
+nbTPclusters=compareScenarios_clusterFWER( NNN = NNN, statistic = "nbTPclusters")
+FDR=nbFPclusters/(nbFPclusters+nbTPclusters)
+
+tpr2=compareScenarios( NNN = NNN, statistic = "TPR_total")
+tpr=read.table(file = paste0("BWAS_summary_fwer/power_FWER_allSignifT_allScenarios_", NNN, "_FWER0.2.txt"), header=T)
+
+lamb=compareScenarios( NNN = NNN, statistic = "lambdaH0_total")
+fpr=compareScenarios(NNN = NNN, statistic = "FPR_0.05_H0_total")
+
+# Inflation factor
+x=barplot(colMeans(lamb, na.rm = T),  xaxt="n", col=cols, ylab="", ylim=c(0,max(colMeans(lamb, na.rm = T)+sqrt(colVars(lamb, na.rm = T)))+0.2 ) )
+arrows(x,colMeans(lamb, na.rm = T)-sqrt(colVars(lamb, na.rm = T)) ,x,colMeans(lamb, na.rm = T)+sqrt(colVars(lamb, na.rm = T)) , code=3,length=0.07,angle=90,col='black', lwd=1.5)
+abline(h=1, col="grey", lty=2)
+title(ylab="Inflation factor", line=2.3, cex.lab=1)
+title(main=paste0(NNN, " associated vertices"), cex.main=0.8)
+
+# TPR
+boxplot(tpr2,  col=cols, ylab="",  xaxt="n", ylim=c(0,1))
+#abline(h=0.0, lty=2, col="grey")
+title(ylab="True Positive Rate", line=2.3, cex.lab=1)
+
+# FWER
+plot(colMeans(fwer, na.rm = T), col=cols, pch=20, cex=2,  xaxt="n", ylab="", xlab="", ylim=c(0,1.05))
+arrows(c(1:nscenarios),colMeans(fwer, na.rm = T)-sqrt(colVars(fwer, na.rm = T))/sqrt(nbRes) ,c(1:nscenarios),colMeans(fwer, na.rm = T)+sqrt(colVars(fwer, na.rm = T))/sqrt(nbRes) , code=3,length=0.05,angle=90,col='black', lwd=1.5)
+abline(h=0.05, col="grey", lty=2)
+title(ylab="FWER", line=2.3, cex.lab=1)
+
+# cluster FWER
+plot(colMeans(fwerCluster, na.rm = T), col=cols, pch=20, cex=2,  xaxt="n", ylab="", xlab="", ylim=c(0, 1.05))
+arrows(c(1:nscenarios),colMeans(fwerCluster, na.rm = T)-sqrt(colVars(fwerCluster, na.rm = T))/sqrt(nbRes) ,c(1:nscenarios),colMeans(fwerCluster, na.rm = T)+sqrt(colVars(fwerCluster, na.rm = T))/sqrt(nbRes) , code=3,length=0.05,angle=90,col='black', lwd=1.5)
+abline(h=0.05, col="grey", lty=2)
+title(ylab="cluster FWER", line=2.3, cex.lab=1)
+
+# Power - fixed alpha
+plot(tpr$Power, col=cols, pch=20, cex=2,  xaxt="n", ylab="", xlab="", ylim=c(0,1.05))
+arrows(c(1:nscenarios), tpr$Power-tpr$SE_power,c(1:nscenarios), tpr$Power+tpr$SE_power , code=3,length=0.05,angle=90,col='black', lwd=1.5)
+#abline(h=0.05, col="grey", lty=2)
+title(ylab="Power (alpha<0.2)", line=2.3, cex.lab=1)
+
+
+# FDR
+ if (NNN == 10){ par(mar=c(8, 4, 1, 0.5)) } else {
+    par(mar=c(8,2,1,0.5))
+  }
+boxplot(FDR, col=cols,  xaxt="n", ylab="", ylim=c(0, 1))
+title(ylab="cluster FDR", line=2.3, cex.lab=1)
+abline(h=0.05, col="grey", lty=2)
+text(cex=1, x=c(1:nscenarios)+0.25, y=-0.1 , pos = 2, scenarLabel, xpd=TRUE, srt=65) 
+}
+
+dev.off()
+
+```
+
+# Second plot 
+
+> Precision and prediction accuracy
+
+```{R, message=FALSE}
+
+# Draw and write plots
+png( paste0("../../BWAS_summary_plots_AllModa_Figure2_R1IEEE.png"), width = 17, height = 21, units = "cm", res = 400)
+par(mar=c(0.7,4,0.7,0.5))
+nplots=6
+layout(matrix(c(1:nplots,nplots , (nplots+1):(nplots*2), nplots*2, (nplots*2+1):(nplots*3),nplots*3 ), nrow = nplots+1, ncol = 3, byrow = F)) 
+
+for (NNN in c(10,100, 1000)){
+ # Loop
+  if (NNN != 10){ par(mar=c(0.7, 2, 0.7, 0.5)) }
+ 
+sizeTPclusters_area=compareScenarios_clusterFWER_singleMetric( NNN = NNN, statistic = "MedianSizeTruePositiveCluster_area")
+sizeTPclusters_thickness=compareScenarios_clusterFWER_singleMetric( NNN = NNN, statistic = "MedianSizeTruePositiveCluster_thickness")
+sizeTPclusters_thick=compareScenarios_clusterFWER_singleMetric( NNN = NNN, statistic = "MedianSizeTruePositiveCluster_thick")
+sizeTPclusters_LogJacs=compareScenarios_clusterFWER_singleMetric( NNN = NNN, statistic = "MedianSizeTruePositiveCluster_LogJacs")
+
+corTop=compareScenarios_prediction( NNN = NNN, statistic = "corTop")
+nTop=compareScenarios_prediction( NNN = NNN, statistic = "NverticesTop")
+
+corAll=compareScenarios_prediction( NNN = NNN, statistic = "corAll")
+nAll=compareScenarios_prediction( NNN = NNN, statistic = "NverticesAll")
+
+
+# Size TP clusters - thickness
+boxplot(sizeTPclusters_thickness, col=cols,  xaxt="n", ylab="", ylim=c(0, 200 ) )
+#title(ylab="Median size TP clusters", line=3, cex.lab=1)
+title(ylab="Precision", line=3, cex.lab=1)
+title(ylab="cort. thickness", line=2.3, cex.lab=1)
+title(main=paste0(NNN, " associated vertices"), cex.main=0.8)
+
+# Size TP clusters - area
+boxplot(sizeTPclusters_area, col=cols,  xaxt="n", ylab="", ylim=c(0, 20  ) )
+title(ylab="Precision", line=3, cex.lab=1)
+title(ylab="cort. area", line=2.3, cex.lab=1)
+
+# Size TP clusters - thick
+boxplot(sizeTPclusters_thick, col=cols,  xaxt="n", ylab="", ylim=c(0, 500 ) )
+title(ylab="Precision", line=3, cex.lab=1)
+title(ylab="subcort. thickness", line=2.3, cex.lab=1)
+
+# LogJacs
+boxplot(sizeTPclusters_LogJacs, col=cols,  xaxt="n", ylab="", ylim=c(0, 500) )
+title(ylab="Precision", line=3, cex.lab=1)
+title(ylab="subcort. area", line=2.3, cex.lab=1)
+
+# Prediction
+boxplot(nTop,  col=cols, ylab="",  xaxt="n", ylim=c(0,300))
+title(ylab="Num. clusters", line=2.3, cex.lab=1)
+
+  if (NNN == 10){ par(mar=c(8, 4, 1, 0.5)) } else {
+    par(mar=c(8,2,1,0.5))
+  }
+boxplot(corTop,  col=cols, ylab="",  xaxt="n", ylim=c(0 ,0.8))
+title(ylab="Prediction accuracy", line=3, cex.lab=1)
+title(ylab="top vertex per cluster", line=2.3, cex.lab=1)
+text(cex=1, x=c(1:nscenarios)+0.25, y=-0.1 , pos = 2, scenarLabel, xpd=TRUE, srt=65) 
+}
+
+dev.off()
+
+
+
+maxsizeTPclusters_LogJacs=compareScenarios_clusterFWER_singleMetric( NNN = NNN, statistic = "maxSizeTruePositiveCluster_LogJacs")
+
+
+```
+
+
+# Make morphometricity plots
+
+```{R, message=FALSE, eval=F}
+
+# Make plots
+png(paste0("../../Simul_morphometricity_allModa.png"), width = 18, height = 10, units = "cm", res = 400)
+cols=c(viridis_pal(option = "C")(8)[6:8])
+
+
+par(mar=c(9,5,1,1), mfrow=c(1,3))
+res10=read.table(paste0("../../07_BWAS_MOA_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 10, ".txt"))
+res102=read.table(paste0("../../10_BWAS_MOA_multiORM_QC_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 10, ".txt"))
+res103=read.table(paste0("../../15_BWAS_MOA_allModa_FE_clusterFWER/BWAS_morphometricity_allModa_N", 10, ".txt"))
+resAll=cbind(res10$V2, res103$V2, res102$V2)
+boxplot(resAll, xaxt="n", col=cols, ylim=c(0,0.7), ylab="Estimated morphometricity")
+abline(h=c(0.2), col="grey", lty=2, lwd=2)
+text(cex=1, x=c(1:3)+0.25, y=-0.05 , pos = 2, c("LMM (global BRM)", "LMM with covariates", "LMM (multi. BRM)"), xpd=TRUE, srt=65) 
+
+
+res10=read.table(paste0("../../07_BWAS_MOA_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 100, ".txt"))
+res102=read.table(paste0("../../10_BWAS_MOA_multiORM_QC_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 100, ".txt"))
+res103=read.table(paste0("../../15_BWAS_MOA_allModa_FE_clusterFWER/BWAS_morphometricity_allModa_N", 100, ".txt"))
+resAll=cbind(res10$V2, res103$V2, res102$V2)
+boxplot(resAll, xaxt="n", col=cols, ylim=c(0,0.7))
+abline(h=c(0.5), col="grey", lty=2, lwd=2)
+text(cex=1, x=c(1:3)+0.25, y=-0.05 , pos = 2, c("LMM (global BRM)", "LMM with covariates", "LMM (multi. BRM)"), xpd=TRUE, srt=65) 
+
+res10=read.table(paste0("../../07_BWAS_MOA_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 1000, ".txt"))
+res102=read.table(paste0("../../10_BWAS_MOA_multiORM_QC_allModa_clusterFWER/BWAS_morphometricity_allModa_N", 1000, ".txt"))
+res103=read.table(paste0("../../15_BWAS_MOA_allModa_FE_clusterFWER/BWAS_morphometricity_allModa_N", 1000, ".txt"))
+resAll=cbind(res10$V2, res103$V2, res102$V2)
+boxplot(resAll, xaxt="n", col=cols, ylim=c(0,0.7))
+abline(h=c(0.4), col="grey", lty=2, lwd=2)
+text(cex=1, x=c(1:3)+0.25, y=-0.05 , pos = 2, c("LMM (global BRM)", "LMM with covariates", "LMM (multi. BRM)"), xpd=TRUE, srt=65) 
+
+dev.off()
+
+```
+
+<br><br>
