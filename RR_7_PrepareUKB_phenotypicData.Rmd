@@ -40,6 +40,9 @@ TT=merge(TT, globPC, by="eid", all.x=T)
 
 # Write raw phenotypes and covariate files 
 
+> We have created a text file UKB_BWASvars.txt, which contains the list of variables we want to study. This file is used to loop on the phenotypes of interest.  
+> Phenotypes are stored in individual text files (folder *UKB_phenotypes15K*) to faciliate reading them with OSCA. Each phenotypic file contains 3 columns: eid eid phenotype  
+
 ```{R, message=FALSE, eval=F}
 
 # Exclude extreme ICV values and normalise variables
@@ -49,10 +52,16 @@ TT$ICVstd=scale(TT$ICV)
 
 TT$Agestd=scale(TT$Age_MRI)
 
+#write phenotypic files (one per variable of interest)
+phe=read.table("UKB_BWASvars.txt")
+for (var in phe$V1){
+write.table( TT[,c("eid", "eid", var)], paste0("UKB_phenotypes15K/", var, ".phen"), col.names = F, row.names = F)
+}
+
 # Covariates for age
-write.table( TT[,c("eid", "eid", "sexuses_datacoding_9_f31_0_0", "ICVstd")], paste0("../../UKB_phenotypes15K/Covariates_no_Age_MRI.phen"), col.names = F, row.names = F)
-write.table( TT[,c("eid", "eid", "Agestd", "ICVstd")], paste0("../../UKB_phenotypes15K/Covariates_no_sexuses_datacoding_9_f31_0_0.phen"), col.names = F, row.names = F)
-write.table( TT[,c("eid", "eid", "Age_MRI", "sexuses_datacoding_9_f31_0_0")], paste0("../../UKB_phenotypes15K/Covariates_no_ICV.phen"), col.names = F, row.names = F)
+write.table( TT[,c("eid", "eid", "sexuses_datacoding_9_f31_0_0", "ICVstd")], paste0("UKB_phenotypes15K/Covariates_no_Age_MRI.phen"), col.names = F, row.names = F)
+write.table( TT[,c("eid", "eid", "Agestd", "ICVstd")], paste0("UKB_phenotypes15K/Covariates_no_sexuses_datacoding_9_f31_0_0.phen"), col.names = F, row.names = F)
+write.table( TT[,c("eid", "eid", "Age_MRI", "sexuses_datacoding_9_f31_0_0")], paste0("UKB_phenotypes15K/Covariates_no_ICV.phen"), col.names = F, row.names = F)
 
 ```
 
@@ -61,7 +70,7 @@ write.table( TT[,c("eid", "eid", "Age_MRI", "sexuses_datacoding_9_f31_0_0")], pa
 ```{R, message=FALSE, eval=F}
 
 for (iii in 1:10){
-  write.table( TT[,c("eid", "eid", paste0("PC", iii))], paste0("../../UKB_phenotypes15K/PC", iii, ".phen"), col.names = F, row.names = F)
+  write.table( TT[,c("eid", "eid", paste0("PC", iii))], paste0("UKB_phenotypes15K/PC", iii, ".phen"), col.names = F, row.names = F)
 }
 
 ```

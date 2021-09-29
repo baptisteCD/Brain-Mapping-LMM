@@ -1,0 +1,218 @@
+---
+title: "BWAS analyses - real UKB phenotypes"
+author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
+output:
+  epuRate::PCTG:
+    toc: TRUE
+    code_folding: "show"
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+# You need these libraries to run this template:
+library(rmarkdown)    # install.packages("rmarkdown") 
+library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
+
+```
+
+# Create environment 
+
+```{bash, message=FALSE}
+
+wd="/path/to/working/directory"
+cd $wd
+
+mkdir -p ${wd}/03_BWAS_uncorrected_realPheno
+mkdir -p ${wd}/09_BWAS_ICVagesex_realPheno
+mkdir -p ${wd}/04_BWAS_5globalPCs_realPheno
+mkdir -p ${wd}/05_BWAS_10globalPCs_realPheno
+mkdir -p ${wd}/06_BWAS_10specificPCs_realPheno
+mkdir -p ${wd}/07_BWAS_MOA_realPheno
+mkdir -p ${wd}/15_BWAS_MOA_allModa_FE_realPheno
+
+```
+
+
+# GLM no covariates
+
+> We have created a text file UKB_BWASvars.txt, which contains the list of variables we want to study. This file is used to loop on the phenotypes of interest.  
+
+```{bash, message=FALSE}
+
+wd="path/to/working/directory"
+cd $wd/03_BWAS_uncorrected_realPheno
+
+${wd}/qsubshcom " 
+phenotype=\$(sed -n \"\${TASK_ID}{p;q}\" "${wd}"/UKB_BWASvars.txt) |;
+echo \${TASK_ID} |;
+echo \${phenotype} |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/UKB_phenotypes15K/\${phenotype}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --out "${wd}"/03_BWAS_uncorrected_realPheno/BWAS_\${phenotype} |;
+ " 1 50G BWAS03_realPheno 24:00:00 "-array=6-96 -acct=UQ-IMB-CNSG" 
+
+```
+
+# GLM with 5 global PCs
+
+```{bash, message=FALSE}
+
+wd="path/to/working/directory"
+cd $wd/04_BWAS_5globalPCs_realPheno
+
+${wd}/qsubshcom " 
+phenotype=\$(sed -n \"\${TASK_ID}{p;q}\" "${wd}"/UKB_BWASvars_5pheno.txt) |;
+echo \${TASK_ID} |;
+echo \${phenotype} |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/UKB_phenotypes15K/\${phenotype}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/PC.5global.eigenvec --out "${wd}"/04_BWAS_5globalPCs_realPheno/BWAS_\${phenotype} |;
+ " 1 50G BWAS04_realPheno 24:00:00 "-array=1-5 -acct=UQ-IMB-CNSG" 
+
+```
+
+
+# GLM with 10 global PCs
+
+```{bash, message=FALSE}
+
+wd="path/to/working/directory"
+cd $wd/05_BWAS_10globalPCs_realPheno
+
+${wd}/qsubshcom " 
+phenotype=\$(sed -n \"\${TASK_ID}{p;q}\" "${wd}"/UKB_BWASvars.txt) |;
+echo \${TASK_ID} |;
+echo \${phenotype} |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/UKB_phenotypes15K/\${phenotype}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/PC.10global.eigenvec --out "${wd}"/05_BWAS_10globalPCs_realPheno/BWAS_\${phenotype} |;
+ " 1 50G BWAS05_realPheno 24:00:00 "-array=1-96 -acct=UQ-IMB-CNSG" 
+
+```
+
+## Combine the summary statistics so they have the same format as others 
+
+```{bash, message=FALSE}
+
+wd="path/to/working/directory"
+cd $wd/06_BWAS_10specificPCs_realPheno
+
+${wd}/qsubshcom " 
+phenotype=\$(sed -n \"\${TASK_ID}{p;q}\" "${wd}"/UKB_BWASvars_5pheno.txt) |;
+echo \${TASK_ID} |;
+echo \${phenotype} |;
+tail -n +1 "${wd}"/06_BWAS_10specificPCs_realPheno/BWAS_\${phenotype}_thickness.linear > "${wd}"/06_BWAS_10specificPCs_realPheno/BWAS_\${phenotype}.linear |;
+for moda in area thick LogJacs |;
+do |;
+tail -n +2 "${wd}"/06_BWAS_10specificPCs_realPheno/BWAS_\${phenotype}_\${moda}.linear >> "${wd}"/06_BWAS_10specificPCs_realPheno/BWAS_\${phenotype}.linear |;
+done |;
+ " 1 4G BWAS_realPheno_putTogether 01:00:00 "-array=1-5 -acct=UQ-IMB-CNSG" 
+
+```
+
+# GLM with 10 specific PCs
+
+```{bash, message=FALSE}
+
+wd="path/to/working/directory"
+cd $wd/06_BWAS_10specificPCs_realPheno
+
+
+${wd}/qsubshcom " 
+phenotype=\$(sed -n \"\${TASK_ID}{p;q}\" "${wd}"/UKB_BWASvars.txt) |;
+echo \${TASK_ID} |;
+echo \${phenotype} |;
+for moda in area thickness thick LogJacs |;
+do |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.\${moda}.fwhm0.fsaverage.UKB15K --pheno "${wd}"/UKB_phenotypes15K/\${phenotype}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/PC.10specific.\${moda}.eigenvec --out "${wd}"/06_BWAS_10specificPCs_realPheno/BWAS_\${phenotype}_\${moda} |;
+done |; " 1 40G BWAS06_realPheno 24:00:00 "-array=1-96 -acct=UQ-IMB-CNSG" 
+
+```
+
+# LMM single random effect
+
+```{bash, message=FALSE}
+
+wd="path/to/working/directory"
+cd $wd/07_BWAS_MOA_realPheno
+
+${wd}/qsubshcom " if [ ! -f "${wd}"/07_BWAS_MOA_realPheno/BWAS_\${phenotype}.moa ] |;
+then |;
+phenotype=\$(sed -n \"\${TASK_ID}{p;q}\" "${wd}"/UKB_BWASvars.txt) |;
+echo \${TASK_ID} |;
+echo \${phenotype} |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/UKB_phenotypes15K/\${phenotype}.phen --orm "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC --remove "${wd}"/ID_UKB_replication.txt --moa --out "${wd}"/07_BWAS_MOA_realPheno/BWAS_\${phenotype} |;
+fi " 1 60G BWAS07_realPheno 24:00:00 "-array=1-5 -acct=UQ-IMB-CNSG" 
+
+```
+
+
+# GLM with ICV, age and sex as covariates 
+
+```{bash, message=FALSE}
+
+wd="path/to/working/directory"
+cd $wd/09_BWAS_ICVagesex_realPheno
+
+${wd}/qsubshcom " 
+phenotype=\$(sed -n \"\${TASK_ID}{p;q}\" "${wd}"/UKB_BWASvars.txt) |;
+echo \${TASK_ID} |;
+echo \${phenotype} |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/UKB_phenotypes15K/\${phenotype}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/ageSexIcv.txt --out "${wd}"/09_BWAS_ICVagesex_realPheno/BWAS_\${phenotype} |;
+done |; " 1 50G BWAS09_realPheno 24:00:00 "-array=1-5 -acct=UQ-IMB-CNSG" 
+
+# Sex, age and ICV BWAS
+wd="path/to/working/directory"
+cd $wd/09_BWAS_ICVagesex_realPheno
+
+${wd}/qsubshcom " 
+for phenotype in Age_MRI sexuses_datacoding_9_f31_0_0 ICV |;
+do |;
+echo \${phenotype} |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/UKB_phenotypes15K/\${phenotype}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/UKB_phenotypes15K/Covariates_no_\${phenotype}.phen --out "${wd}"/09_BWAS_ICVagesex_realPheno/BWAS_\${phenotype} |;
+done |; " 1 50G BWAS09_realPheno_ageSexICV 24:00:00 "-acct=UQ-IMB-CNSG" 
+
+```
+
+
+# LMM with covariates 
+
+```{bash, message=FALSE}
+
+wd="path/to/working/directory"
+cd $wd/15_BWAS_MOA_allModa_FE_realPheno
+
+${wd}/qsubshcom " 
+phenotype=\$(sed -n \"\${TASK_ID}{p;q}\" "${wd}"/UKB_BWASvars_5pheno.txt) |;
+echo \${TASK_ID} |;
+echo \${phenotype} |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/UKB_phenotypes15K/\${phenotype}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --moa --qcovar "${wd}"/ageSexIcv.txt --out "${wd}"/15_BWAS_MOA_allModa_FE_realPheno/BWAS_\${phenotype} |;
+done |; " 1 100G BWAS09_realPheno 24:00:00 "-array=1-5 -acct=UQ-IMB-CNSG" 
+
+# Sex, age and ICV BWAS
+wd="path/to/working/directory"
+cd $wd/15_BWAS_MOA_allModa_FE_realPheno
+
+for phenotype in sexuses_datacoding_9_f31_0_0 
+do 
+${wd}/qsubshcom " 
+echo ${phenotype} |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/UKB_phenotypes15K/${phenotype}.phen --orm "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC --remove "${wd}"/ID_UKB_replication.txt --moa --qcovar "${wd}"/UKB_phenotypes15K/Covariates_no_${phenotype}.phen --out "${wd}"/15_BWAS_MOA_allModa_FE_realPheno/BWAS_${phenotype}  |; " 1 100G BWAS15_${phenotype}_ageSexICV 24:00:00 "-acct=UQ-IMB-CNSG" 
+done
+
+```
+
+# LMM several random effects
+
+```{bash, message=FALSE}
+
+wd="path/to/working/directory"
+cd $wd/10_BWAS_MOA_multiORM_QC_realPheno
+
+${wd}/qsubshcom " 
+phenotype=\$(sed -n \"\${TASK_ID}{p;q}\" "${wd}"/UKB_BWASvars.txt) |;
+echo \${TASK_ID} |;
+echo \${phenotype} |;
+if [ ! -f "${wd}"/10_BWAS_MOA_multiORM_QC_realPheno/BWAS_\${phenotype}.moa ] |;
+then |;
+"${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/UKB_phenotypes15K/\${phenotype}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --moa --multi-orm "${wd}"/fwhm0.fsaverage.QC.ormlist --out "${wd}"/10_BWAS_MOA_multiORM_QC_realPheno/BWAS_\${phenotype} --reml-no-constrain  |;
+fi |; 
+ " 1 60G BWAS10_allPheno 48:00:00 "-array=1-5 -acct=UQ-IMB-CNSG" 
+
+```
+
+<br><br>
