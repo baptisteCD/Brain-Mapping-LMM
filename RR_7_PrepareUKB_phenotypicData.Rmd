@@ -2,7 +2,7 @@
 title: "Prepare UKB phenotypic data"
 author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
 output:
-  epuRate::PCTG:
+  epuRate::ARAMISPCTG:
     toc: TRUE
     code_folding: "show"
 ---

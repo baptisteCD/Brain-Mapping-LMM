@@ -2,7 +2,7 @@
 title: "Brain predictors on simulated phenotypes"
 author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
 output:
-  epuRate::PCTG:
+  epuRate::ARAMISPCTG:
     toc: TRUE
     code_folding: "show"
 ---
@@ -19,7 +19,7 @@ library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
 
 > as well as all signif vertices
 
-```{bash, echo=FALSE, eval=F}
+```{bash, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd
@@ -49,7 +49,7 @@ done
 
 > Dependencies - tables UKB etc...
 
-```{R, echo=FALSE, eval=F}
+```{R, message=FALSE, eval=F}
 
 signifT=0.05/652283/5
 library(xlsx)
@@ -153,7 +153,7 @@ write.xlsx(resall, "../../prediction_BWAS_results_topVertexCluster_wCovariates_a
 
 # Plot corresponding to Figure 4
 
-```{R, echo=FALSE, eval=F}
+```{R, message=FALSE, eval=F}
 
 labelsVar=c("Age", "BMI", "Fluid IQ", "Sex", "Smoking status")
 morphom=c(0.91, 0.59,  0.16, 0.99, 0.15)

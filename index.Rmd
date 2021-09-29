@@ -2,7 +2,7 @@
 title: "A parsimonious model for mass-univariate vertex-wise analysis"
 author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
 output:
-  epuRate::PCTG:
+  epuRate::ARAMISPCTG:
     toc: TRUE
     code_folding: "show"
 ---

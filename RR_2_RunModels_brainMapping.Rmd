@@ -2,7 +2,7 @@
 title: "Run brain mapping analyses on simulated data"
 author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
 output:
-  epuRate::PCTG:
+  epuRate::ARAMISPCTG:
     toc: TRUE
     code_folding: "show"
 ---
@@ -35,7 +35,7 @@ mkdir -p ${wd}/15_BWAS_MOA_allModa_FE
 ```
 
 
-# 1) GLM no covariates
+# GLM no covariates
 
 ```{bash, message=FALSE, eval=F}
 

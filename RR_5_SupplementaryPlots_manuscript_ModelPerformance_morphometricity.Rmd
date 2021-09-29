@@ -2,7 +2,7 @@
 title: "Analyses correcting for head size and Body size - new phenotypes"
 author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
 output:
-  epuRate::PCTG:
+  epuRate::ARAMISPCTG:
     toc: TRUE
     code_folding: "show"
 ---
