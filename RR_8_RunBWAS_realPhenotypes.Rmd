@@ -17,7 +17,7 @@ library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
 
 # Create environment 
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, eval=F}
 
 wd="/path/to/working/directory"
 cd $wd
@@ -37,7 +37,7 @@ mkdir -p ${wd}/15_BWAS_MOA_allModa_FE_realPheno
 
 > We have created a text file UKB_BWASvars.txt, which contains the list of variables we want to study. This file is used to loop on the phenotypes of interest.  
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd/03_BWAS_uncorrected_realPheno
@@ -53,7 +53,7 @@ echo \${phenotype} |;
 
 # GLM with 5 global PCs
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd/04_BWAS_5globalPCs_realPheno
@@ -70,7 +70,7 @@ echo \${phenotype} |;
 
 # GLM with 10 global PCs
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd/05_BWAS_10globalPCs_realPheno
@@ -86,7 +86,7 @@ echo \${phenotype} |;
 
 ## Combine the summary statistics so they have the same format as others 
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd/06_BWAS_10specificPCs_realPheno
@@ -106,7 +106,7 @@ done |;
 
 # GLM with 10 specific PCs
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd/06_BWAS_10specificPCs_realPheno
@@ -125,7 +125,7 @@ done |; " 1 40G BWAS06_realPheno 24:00:00 "-array=1-96 -acct=UQ-IMB-CNSG"
 
 # LMM single random effect
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd/07_BWAS_MOA_realPheno
@@ -143,7 +143,7 @@ fi " 1 60G BWAS07_realPheno 24:00:00 "-array=1-5 -acct=UQ-IMB-CNSG"
 
 # GLM with ICV, age and sex as covariates 
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd/09_BWAS_ICVagesex_realPheno
@@ -171,7 +171,7 @@ done |; " 1 50G BWAS09_realPheno_ageSexICV 24:00:00 "-acct=UQ-IMB-CNSG"
 
 # LMM with covariates 
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd/15_BWAS_MOA_allModa_FE_realPheno
@@ -198,7 +198,7 @@ done
 
 # LMM several random effects
 
-```{bash, message=FALSE}
+```{bash, message=FALSE, eval=F}
 
 wd="path/to/working/directory"
 cd $wd/10_BWAS_MOA_multiORM_QC_realPheno

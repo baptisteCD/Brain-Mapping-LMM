@@ -19,3 +19,5 @@ navbar:
       href: RR_6_PredictionAnalysis_simulatedPhenotypes.html
     - text: "7 Prepare UKB data"
       href: RR_7_PrepareUKB_phenotypicData.html
+    - text: "8 Run models on UKB traits"
+      href: RR_8_RunBWAS_realPhenotypes.html
