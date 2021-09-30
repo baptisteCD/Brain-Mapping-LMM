@@ -82,11 +82,10 @@ combineCorticalSubcorticalPlots(path = paste0(scenario, "/"), variable = var )
 
 ```
 
-> Outputs of plotCortical
+> Left cortical surface area associations with age - GLM without covariates
 
 ```{R, message=FALSE, hide=T, fig.show="hold",out.width="50%"}
 
-#par(mfrow=c(1,4))
 library(knitr)
 hemi="lh"
 moda="area"
@@ -94,9 +93,10 @@ include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_
 include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
 
 ```
+> Right cortical surface area associations with age - GLM without covariates
+
 ```{R, message=FALSE, hide=T, fig.show="hold",out.width="50%"}
 
-#par(mfrow=c(1,4))
 library(knitr)
 hemi="rh"
 moda="area"
@@ -105,9 +105,10 @@ include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_
 
 ```
 
+> Left cortical thickness associations with age - GLM without covariates
+
 ```{R, message=FALSE, hide=T, fig.show="hold",out.width="50%"}
 
-#par(mfrow=c(1,4))
 library(knitr)
 hemi="lh"
 moda="thickness"
@@ -115,15 +116,41 @@ include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_
 include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
 
 ```
+
+> Right cortical thickness associations with age - GLM without covariates
 
 ```{R, message=FALSE, hide=T,fig.show="hold",out.width="50%"}
 
-#par(mfrow=c(1,4))
 library(knitr)
 hemi="rh"
 moda="thickness"
 include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_inside.png"))
 include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
+
+```
+
+> Sucbcortical surface area associations with age - GLM without covariates
+
+```{R, message=FALSE, hide=T,fig.show="hold",out.width="25%"}
+
+library(knitr)
+hemi="rh"
+moda="LogJacs"
+include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_inside.png"))
+include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
+
+hemi="lh"
+moda="LogJacs"
+include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_inside.png"))
+include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
+
+```
+
+> Combined plot
+
+```{R, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+
+include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/Plots_CombinedAge_MRI.png"))
 
 ```
 

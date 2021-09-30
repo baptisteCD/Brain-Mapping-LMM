@@ -21,5 +21,5 @@ navbar:
       href: RR_7_PrepareUKB_phenotypicData.html
     - text: "8 Run models on UKB traits"
       href: RR_8_RunBWAS_realPhenotypes.html
-    - text: "Model results and plots"
+    - text: "9 Model results and plots"
       href: RR_9_Extractresults_RealPhenotypes.html
