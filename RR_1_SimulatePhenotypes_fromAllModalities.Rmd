@@ -11,7 +11,11 @@ output:
 # You need these libraries to run this template:
 library(rmarkdown)    # install.packages("rmarkdown") 
 library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
-#rmarkdown::render_site()
+library(formatR)
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
+
+# rmarkdown::render_site()
+
 ```
 
 # Simulate associated phenotypes 
