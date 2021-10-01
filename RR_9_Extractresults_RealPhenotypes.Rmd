@@ -55,7 +55,7 @@ library(knitr)
 include_graphics(path = "examplePlots/legendbar.png", dpi = 50)
 ```
 
-# Brain plots for manuscript
+# Brain plots 
 
 > Brain surface plots, made in R using the rgl package. The cortical surface can take a while to render but the plotting is very versatile.   
 > The brain plot functions use the summary files created in the step above.  
@@ -81,6 +81,8 @@ combineCorticalSubcorticalPlots(path = paste0(scenario, "/"), variable = var )
 }
 
 ```
+
+## Cortical panels
 
 > Left cortical surface area associations with age - GLM without covariates
 
@@ -129,6 +131,8 @@ include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_
 
 ```
 
+## Subcortical plots
+
 > Sucbcortical surface area associations with age - GLM without covariates
 
 ```{R, message=FALSE, hide=T,fig.show="hold",out.width="25%"}
@@ -146,17 +150,11 @@ include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_
 
 ```
 
-> Combined plot
+## Combined plot
 
 ```{R, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
 
 include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/Plots_CombinedAge_MRI.png"))
-
-```
-
-```{R, message=FALSE, eval=F}
-
-plotSubcortical_flat_multiModel(path = "15_BWAS_MOA_allModa_FE_realPheno", variable = "sexuses_datacoding_9_f31_0_0", otherPaths2Models = c("03_BWAS_uncorrected_realPheno/", "09_BWAS_ICVagesex_realPheno/", "04_BWAS_5globalPCs_realPheno/", "05_BWAS_10globalPCs_realPheno/", "06_BWAS_10specificPCs_realPheno/"))
 
 ```
 
@@ -174,6 +172,12 @@ BWASPlotSimple(path = "09_BWAS_ICVagesex_realPheno/", bwasFile = "BWAS_Age_MRI.l
 BWASPlotSimple(path = "05_BWAS_10globalPCs_realPheno/", bwasFile = "BWAS_Age_MRI.linear", yMax = 120, ntotvar = 5, phenotypeLabel = "Age")
 BWASPlotSimple(path = "06_BWAS_10specificPCs_realPheno/", bwasFile = "BWAS_Age_MRI.linear", yMax = 120, ntotvar = 5, phenotypeLabel = "Age")
 BWASPlotSimple(path = "07_BWAS_MOA_realPheno/", bwasFile = "BWAS_Age_MRI.moa", yMax = 120, ntotvar = 5, phenotypeLabel = "Age")
+
+```
+
+```{R, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+
+include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/Manhathan_BWAS_Age_MRI.linear_simple.png"))
 
 ```
 

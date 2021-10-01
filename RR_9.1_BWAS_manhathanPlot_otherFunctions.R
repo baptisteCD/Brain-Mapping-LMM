@@ -773,7 +773,7 @@ for (model in otherPaths2Models){
 }
 
 # Open phenotype file
-pheno=read.table(paste0("../../UKB_phenotypes15K/", variable, ".phen"))
+pheno=read.table(paste0("UKB_phenotypes15K/", variable, ".phen"))
 
 # Transform betas in correlations
 bwasPlot$cor=bwasPlot$b/sqrt(var(pheno$V3, na.rm = T))
@@ -895,13 +895,13 @@ bwasPlot$Zf2[bwasPlot$subcv %in% c(10,49)]=bwasPlot$Zf2[bwasPlot$subcv %in% c(10
 # Draw plots and save screenshots
 par3d(windowRect = c(0, 0, 800, 800)*1.5, zoom=0.8)
 spheres3d(as.matrix(bwasPlot[,c( "Zf",  "Xf", "Yf")]), col=bwasPlot$color, radius = bwasPlot$radius, alpha=0.5)
-rgl.snapshot(paste0(path, "/BWAS_", variable, "_", hemi, "_", moda , "_clustersAndCoordinates_inside.png"))
+rgl.snapshot(paste0(path, "/BWAS_", variable, "_", hemi, "_", moda , "_clustersAndCoordinates_inside_multiModel.png"))
 rgl.close()
 
 
 par3d(windowRect = c(0, 0, 800, 800)*1.5, zoom=0.8)
 spheres3d(as.matrix(bwasPlot[,c( "Zf2",  "Xf2", "Yf2")]), col=bwasPlot$color, radius = bwasPlot$radius)
-rgl.snapshot(paste0(path, "/BWAS_", variable,"_", hemi, "_", moda , "_clustersAndCoordinates_outside.png"))
+rgl.snapshot(paste0(path, "/BWAS_", variable,"_", hemi, "_", moda , "_clustersAndCoordinates_outside_multiModel.png"))
 rgl.close()
 
 }}
