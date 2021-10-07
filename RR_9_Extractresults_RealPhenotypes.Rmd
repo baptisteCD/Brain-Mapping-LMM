@@ -14,21 +14,43 @@ library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
 
 ```
 
-# Cluster characteristics all pheno and models
+# Load R package 
+
+> Currently only on github - but will be available on CRAN soon
 
 ```{R, message=FALSE, eval=F}
 
-source("RR_9.1_BWAS_manhathanPlot_otherFunctions.R")
+# remove.packages("brainMapR")
+devtools::install_github("baptisteCD/brainMapR")
+library(brainMapR)
+
+```
+
+> Some brain association maps (for age at MRI) are given with the package.  They are stored in the package source folder and you can find the paths using the commands below.  
+
+```{R, message=FALSE, eval=F}
+
+system.file("extdata/07_BWAS_MOA_realPheno", "", package = "brainMapR",mustWork = TRUE)
+
+system.file("extdata/03_BWAS_uncorrected_realPheno", "", package = "brainMapR",mustWork = TRUE)
+
+system.file("extdata/03_BWAS_uncorrected_realPheno", "BWAS_Age_MRI.linear", package = "brainMapR",mustWork = TRUE)
+
+```
+
+# Extract cluster characteristics 
+
+```{R, message=FALSE, eval=F}
 
 for (pheno in c("Age_MRI","body_mass_index_bmi_f21001_2_0","fluid_intelligence_score_f20016_2_0", "sexuses_datacoding_9_f31_0_0","smoking_status_f20116_2_0", "sexuses_datacoding_9_f31_0_0") ){
 for (scenario in c("03_BWAS_uncorrected_realPheno", "09_BWAS_ICVagesex_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno", "07_BWAS_MOA_realPheno",  "10_BWAS_MOA_multiORM_QC_realPheno", "15_BWAS_MOA_allModa_FE_realPheno")){
-identifyClustersBWAS(pathToTheBWASresults =paste0("/Users/uqbcouvy/Documents/MyDocuments/56_BWAS/", scenario, "/"), variable = pheno, outputFolder = paste0( scenario, "/") , variableLabel = pheno, scenario = scenario)
+  
+identifyClustersBWAS(pathToTheBWASresults =system.file(paste0("extdata/", scenario), "", package = "brainMapR",mustWork = TRUE) , bwasFile = paste0("BWAS_",pheno), outputFolder = "../", signifThreshold = 5e-8)
   print(paste(pheno, scenario))
 }
 }
 
 ```
-
 
 # Create Legend bar
 
@@ -51,14 +73,16 @@ dev.off()
 ```
 
 ```{R, message=FALSE, eval=T, out.width = "20%"}
+
 library(knitr)
 include_graphics(path = "examplePlots/legendbar.png", dpi = 50)
+
 ```
 
-# Brain plots 
+# Make brain plots 
 
 > Brain surface plots, made in R using the rgl package. The cortical surface can take a while to render but the plotting is very versatile.   
-> The brain plot functions use the summary files created in the step above.  
+> The brain plot functions use the summary files created using identifyClustersBWAS().  
 > Brain plots will silently open the phenotype file (located in UKB_phenotypes15K) to scale association betas into correlation coefficients.  
 
 ```{R, message=FALSE, eval=F}
@@ -66,17 +90,16 @@ include_graphics(path = "examplePlots/legendbar.png", dpi = 50)
 library(viridis)
 cols=viridis_pal(option = "C")(7)
 
-source("RR_9.1_BWAS_manhathanPlot_otherFunctions.R")
-
 for (var in c("Age_MRI","body_mass_index_bmi_f21001_2_0","fluid_intelligence_score_f20016_2_0", "sexuses_datacoding_9_f31_0_0","smoking_status_f20116_2_0", "sexuses_datacoding_9_f31_0_0") ){
   for (scenario in c("03_BWAS_uncorrected_realPheno", "09_BWAS_ICVagesex_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno", "07_BWAS_MOA_realPheno",  "10_BWAS_MOA_multiORM_QC_realPheno", "15_BWAS_MOA_allModa_FE_realPheno")){
-plotCortical(path = paste0(scenario, "/"), variable = var)
 
-plotSubcortical(path = paste0(scenario, "/"), variable = var)
+plotCortical(inputPath = "../", bwasFile = paste0("BWAS_",pheno), pathPhenotypeFile = "../../../UKB_phenotypes15K/Age_MRI.phen", outputPath = " ../")
 
-plotSubcortical_flat(path = paste0(scenario, "/"), variable = var)
+plotSubcortical(inputPath = "../", bwasFile = paste0("BWAS_",pheno), pathPhenotypeFile = "../../../UKB_phenotypes15K/Age_MRI.phen", outputPath = " ../")
 
-combineCorticalSubcorticalPlots(path = paste0(scenario, "/"), variable = var )
+plotSubcortical_flat(inputPath = "../", bwasFile = paste0("BWAS_",pheno), pathPhenotypeFile = "../../../UKB_phenotypes15K/Age_MRI.phen", outputPath = " ../")
+
+combineCorticalSubcorticalPlots(inputPath = "../", bwasFile = paste0("BWAS_",pheno), pathPhenotypeFile = "../../../UKB_phenotypes15K/Age_MRI.phen", outputPath = " ../" )
 }
 }
 
@@ -165,13 +188,7 @@ include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/Plots
 library(viridis)
 cols=viridis_pal(option = "C")(7)
 
-source("RR_9.1_BWAS_manhathanPlot_otherFunctions.R")
-
-BWASPlotSimple(path = "03_BWAS_uncorrected_realPheno/", bwasFile = "BWAS_Age_MRI.linear", yMax = 120, ntotvar = 5, phenotypeLabel = "Age")
-BWASPlotSimple(path = "09_BWAS_ICVagesex_realPheno/", bwasFile = "BWAS_Age_MRI.linear", yMax = 120, ntotvar = 5, phenotypeLabel = "Age")
-BWASPlotSimple(path = "05_BWAS_10globalPCs_realPheno/", bwasFile = "BWAS_Age_MRI.linear", yMax = 120, ntotvar = 5, phenotypeLabel = "Age")
-BWASPlotSimple(path = "06_BWAS_10specificPCs_realPheno/", bwasFile = "BWAS_Age_MRI.linear", yMax = 120, ntotvar = 5, phenotypeLabel = "Age")
-BWASPlotSimple(path = "07_BWAS_MOA_realPheno/", bwasFile = "BWAS_Age_MRI.moa", yMax = 120, ntotvar = 5, phenotypeLabel = "Age")
+BrainMapManhattanPlot(inputPath = system.file("extdata/07_BWAS_MOA_realPheno", "", package = "brainMapR",mustWork = TRUE), path = "03_BWAS_uncorrected_realPheno/", bwasFile = "BWAS_Age_MRI.linear", yMax = 120, signifThreshold =5e-8,  phenotypeLabel = "Age")
 
 ```
 
@@ -180,17 +197,6 @@ BWASPlotSimple(path = "07_BWAS_MOA_realPheno/", bwasFile = "BWAS_Age_MRI.moa", y
 include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/Manhathan_BWAS_Age_MRI.linear_simple.png"))
 
 ```
-
-# QQplots
-
-```{R, message=FALSE, eval=F}
-
-source("RR_9.1_BWAS_manhathanPlot_otherFunctions.R")
-
-superimposedQQplot(path = "path/to/working/directory/", scenarioList = c("03_BWAS_uncorrected_realPheno", "09_BWAS_ICVagesex_realPheno", "05_BWAS_10globalPCs_realPheno","06_BWAS_10specificPCs_realPheno",  "07_BWAS_MOA_realPheno", "15_BWAS_MOA_allModa_FE_realPheno", "10_BWAS_MOA_multiORM_QC_realPheno"), legendList = c("Uncorrected", "sex, ICV corrected", "10 global PCs", "10 moda. spe. PCs", "LMM", "LMM w. covariates","LMM multi BRM"), colourList = viridis_pal(option = "C")(8)[c(1,2,4,5,6,7, 8)], variableLabel = "Age at MRI")
-
-```
-
 
 # Table of associated regions and description
 
@@ -235,26 +241,6 @@ for (iii in c(1,2,3,5)){
   vall=cbind(vall, all)
 }
 colnames(vall)=pheno$variable_clean
-
-```
-
-# Other plots
-
-```{R, message=FALSE, eval=F}
-
-# Brain plot 
-source("RR_9.1_BWAS_manhathanPlot_otherFunctions.R")
-library(Morpho)
-library(plyr)
-library(viridis)
-
-
-for (scenario in c( "07_BWAS_MOA_realPheno")){
-# Plot cortical and subcortical
-plotCortical_noSignif(path = paste0("path/to/working/directory/", scenario, "/"), variable = "body_mass_index_bmi_f21001_2_0")
-plotSubcortical_noSignif(path =paste0("path/to/working/directory/", scenario, "/"), variable = "body_mass_index_bmi_f21001_2_0")
-combineCorticalSubcorticalPlots_noSignif(path = paste0("path/to/working/directory/", scenario, "/"), variable = "body_mass_index_bmi_f21001_2_0")
-}
 
 ```
 
