@@ -350,9 +350,7 @@ div.tocify {
 <p>Baptiste Couvy-Duchesne, Futao Zhang, Kathryn E. Kemper, Julia Sidorenko, Naomi R. Wray, Peter M. Visscher, Olivier Colliot, Jian Yang</p>
 </blockquote>
 <blockquote>
-<p>The code is presented in a serie of Rmarkdown files with corresponding html knitted files that compose this website. It presents the code allowing the perform all analyses and generate plots presented in the manuscript.<br />
-<br />
-</p>
+<p>The code is presented in a serie of Rmarkdown files with corresponding html knitted files that compose this website. It presents the code allowing the perform all analyses and generate plots presented in the manuscript.</p>
 </blockquote>
 <div id="dependencies" class="section level1" number="1">
 <h1 number="1"><span class="header-section-number">1</span> Dependencies</h1>
@@ -361,13 +359,13 @@ Sections of the code in <strong>bash</strong> may be run directly on a high perf
 In short, <strong>qsubshcom</strong> is a job submission wrapper that adapts automatically to the cluster system, which makes our code highly portable: you only need to set up a few paths (see below) and run on you cluster.</p>
 <p>Steps that do not require much time/memory were sometimes run in an interactive session (they come without the <strong>qsubshcom</strong> syntax)</p>
 <p><strong>FreeSurfer 6.0</strong><br />
-Image processing requires FreeSurfer 6.0 (<a href="https://surfer.nmr.mgh.harvard.edu/" class="uri">https://surfer.nmr.mgh.harvard.edu/</a>).</p>
+Image processing required FreeSurfer 6.0 (<a href="https://surfer.nmr.mgh.harvard.edu/" class="uri">https://surfer.nmr.mgh.harvard.edu/</a>) - NB: the UKB now processed the images for you.</p>
 <p><strong>ENIGMA-shape</strong><br />
-Subcortical processing further requires the scripts developped by Boris Gutman for the ENIGMA consortium (<a href="http://enigma.ini.usc.edu/protocols/imaging-protocols/" class="uri">http://enigma.ini.usc.edu/protocols/imaging-protocols/</a>).</p>
+Subcortical processing relied on scripts developped by Boris Gutman for the ENIGMA consortium (<a href="http://enigma.ini.usc.edu/protocols/imaging-protocols/" class="uri">http://enigma.ini.usc.edu/protocols/imaging-protocols/</a>).</p>
 <p><strong>OSCA</strong><br />
 Most of the mixed model analyses were performed using the <strong>OSCA</strong> software (<a href="https://cnsgenomics.com/software/osca/#Overview" class="uri">https://cnsgenomics.com/software/osca/#Overview</a>).</p>
 <p><strong>R</strong><br />
-Plots, some data management and penalised regression (LASSO) were performed using R version 3.3 to 3.6. See manuscript (or code) for full list of packages used.</p>
+Plots and some data management were performed using R version 4.0. See manuscript (or code) for the full list of packages used.</p>
 </div>
 <div id="atlas-files" class="section level1" number="2">
 <h1 number="2"><span class="header-section-number">2</span> Atlas files</h1>
@@ -375,6 +373,14 @@ Plots, some data management and penalised regression (LASSO) were performed usin
 </div>
 <div id="general-organisation-of-the-working-directory-wd" class="section level1" number="3">
 <h1 number="3"><span class="header-section-number">3</span> General organisation of the working directory ${wd}</h1>
+<blockquote>
+<p>Input folders</p>
+</blockquote>
+<p>${wd}/ 00_BodFiles/ % Binary vertex-files - see OSCA for format description - see <a href="https://baptistecd.github.io/Brain-LMM/" class="uri">https://baptistecd.github.io/Brain-LMM/</a> for the code used to process MRI images and create tables UKB_phenotypes_15K/ % Folder containing individual phenotype files ( format : eid eid phenotype)</p>
+<blockquote>
+<p>Output folders</p>
+</blockquote>
+<p>${wd}/ 01_vertexSelection/ % List of vertices (randomly) selected to be associated 02_phenotypesSimul/ % Simulated phenotypes 03_BWAS_uncorrected_allModa/ % Output folder for model “GLM without covariates” - on simulated phenotypes 03_BWAS_uncorrected_realPheno/ % Output folder of the GLM on real UKB phenotypes 03_BWAS_uncorrected_allModa_clusterFWER/ % List and description of significant clusters (simulated and real phenotypes) […] % Similar naming for the other models 15_BWAS_prediction/ % Results of prediction accuracy (simulated and real phenotypes)</p>
 </div>
 
 
