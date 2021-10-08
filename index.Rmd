@@ -39,21 +39,26 @@ They are available in the **atlas** folder of this repository.
  
 # General organisation of the working directory ${wd}
 
-> Input folders
+> Input folders 
 
-${wd}/
-        00_BodFiles/                                % Binary vertex-files - see OSCA for format description - see                                 https://baptistecd.github.io/Brain-LMM/ for the code used to process MRI images and create tables
-        UKB_phenotypes_15K/                         % Folder containing individual phenotype files ( format : eid eid phenotype)
+    /${wd}  
+        /00_BodFiles                            *Binary vertex-files - see OSCA for format description*
+                                                *- see https://baptistecd.github.io/Brain-LMM/ for the*
+                                                *code used to process MRI images and create tables*
+        /UKB_phenotypes_15K                     *Folder containing individual phenotype files*
+                                                *( format : eid eid phenotype)*  
 			
-> Output folders
+> Output folders  
 
-${wd}/
-        01_vertexSelection/                         % List of vertices (randomly) selected to be associated
-        02_phenotypesSimul/                         % Simulated phenotypes
-        03_BWAS_uncorrected_allModa/                % Output folder for model "GLM without covariates" - on simulated phenotypes
-        03_BWAS_uncorrected_realPheno/              % Output folder of the GLM on real UKB phenotypes
-        03_BWAS_uncorrected_allModa_clusterFWER/    % List and description of significant clusters (simulated and real phenotypes)
-        [...]                                       % Similar naming for the other models 
-        15_BWAS_prediction/                         % Results of prediction accuracy (simulated and real phenotypes)
+    /${wd}  
+        /01_vertexSelection                     *List of vertices (randomly) selected to be associated*  
+        /02_phenotypesSimul                     *Simulated phenotypes*  
+        /03_BWAS_uncorrected_allModa            *Output folder for model "GLM without covariates"*
+                                                *- on simulated phenotypes*  
+        /03_BWAS_uncorrected_realPheno          *Output folder of the GLM on real UKB phenotypes*  
+        /03_BWAS_uncorrected_allModa_clusterFWER    *List and description of significant clusters*
+                                                *(simulated and real phenotypes)*  
+        /[...]                                  *Similar naming for the other models*   
+        /15_BWAS_prediction                     *Results of prediction accuracy (simulated and real phenotypes)*  
 
 
