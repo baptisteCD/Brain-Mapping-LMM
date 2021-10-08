@@ -18,7 +18,7 @@ library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
 
 ## Identify clusters in brain maps (see section 9) 
 
-```{R, echo=FALSE, eval=F}
+```{R, eval=F}
 
 library(brainMapR) # devtools::install.github("baptisteCD/brainMapR")
 
@@ -32,7 +32,7 @@ for (scenario in c("03_BWAS_uncorrected_realPheno", "04_BWAS_5globalPCs_realPhen
 ```
 ## Write list of top vertices
 
-```{R, echo=FALSE, eval=F}
+```{R, eval=F}
 
 library(readr)
 signifT=0.05/652283/5
@@ -66,7 +66,7 @@ write.table(unique(vert), paste0("15_BWAS_prediction/BWAS_topVerticesCluster_", 
 
 ## Calculate predictor using OSCA
 
-```{bash, echo=FALSE, eval=F}
+```{bash, eval=F}
 
 wd="/path/to/working/directory"
 cd $wd/15_BWAS_prediction
@@ -85,7 +85,7 @@ done
 
 # Open phenotypic data and merge with predictors
 
-```{R, echo=FALSE, eval=F}
+```{R, eval=F}
 
 library(readr)
 TT=read_csv("UKB_phenotypes_15K_allData_regVars_Jan2019Update.csv")
@@ -138,7 +138,7 @@ TTrepli=dat[which(dat$replicationQCed==1 ),]
 
 # Estimate prediction accuracy including covariates (fixed effects)
 
-```{R, echo=FALSE, eval=F}
+```{R, eval=F}
 
 signifT=0.05/652283/5
 library(xlsx)
@@ -239,7 +239,7 @@ write.xlsx(resall, "prediction_BWAS_results_topVertexCluster_wCovariates_allPhen
 
 # Make plot - prediction into UKB and OASIS
 
-```{R, echo=FALSE, eval=F}
+```{R, eval=F}
 
 labelsVar=c("Age", "BMI", "Fluid IQ", "Sex", "Smoking status")
 morphom=c(0.91, 0.59,  0.16, 0.99, 0.15)
@@ -298,7 +298,7 @@ dev.off()
 
 ```
 
-```{R, echo=FALSE}
+```{R}
 
 library(knitr)
 include_graphics(path = paste0("examplePlots/Prediction_plot_intoUKB_OASIS_topVertexCluster_wCovariates_allPhenoModels_Figure3_R1IEEE.png"))
