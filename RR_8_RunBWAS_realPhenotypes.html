@@ -12,7 +12,7 @@
 
 
 
-<meta name="author" content="by [Baptiste Couvy-Duchesne] - 30 September 2021" />
+<meta name="author" content="by [Baptiste Couvy-Duchesne] - 08 October 2021" />
 
 
 <title>BWAS analyses - real UKB phenotypes</title>
@@ -391,6 +391,9 @@ div.tocify {
 <li>
   <a href="RR_9_Extractresults_RealPhenotypes.html">9 Model results and plots</a>
 </li>
+<li>
+  <a href="RR_10_Prediction_realPhenotypes.html">10 Evaluate prediction</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         
@@ -412,7 +415,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">BWAS analyses - real UKB phenotypes</h1>
-<h4 class="author" style="text-align: center;"><em>by [Baptiste Couvy-Duchesne] - 30 September 2021 - </em></h4>
+<h4 class="author" style="text-align: center;"><em>by [Baptiste Couvy-Duchesne] - 08 October 2021 - </em></h4>
 
 </div>
 
@@ -445,7 +448,7 @@ div.tocify {
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{TASK_ID} |;</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="dt">\$</span><span class="st">{phenotype}.phen --keep &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --linear --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/03_BWAS_uncorrected_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="st"> &quot;</span> 1 50G BWAS03_realPheno 24:00:00 <span class="st">&quot;-array=6-96 -acct=UQ-IMB-CNSG&quot;</span> </span></code></pre></div>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="st"> &quot;</span> 1 50G BWAS03_realPheno 24:00:00 <span class="st">&quot;-array=6-96 &quot;</span> </span></code></pre></div>
 </div>
 <div id="glm-with-5-global-pcs" class="section level1" number="3">
 <h1 number="3"><span class="header-section-number">3</span> GLM with 5 global PCs</h1>
@@ -458,7 +461,7 @@ div.tocify {
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{TASK_ID} |;</span></span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="dt">\$</span><span class="st">{phenotype}.phen --keep &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --linear --qcovar &quot;</span><span class="va">${wd}</span><span class="st">&quot;/PC.5global.eigenvec --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/04_BWAS_5globalPCs_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="st"> &quot;</span> 1 50G BWAS04_realPheno 24:00:00 <span class="st">&quot;-array=1-5 -acct=UQ-IMB-CNSG&quot;</span> </span></code></pre></div>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="st"> &quot;</span> 1 50G BWAS04_realPheno 24:00:00 <span class="st">&quot;-array=1-5 &quot;</span> </span></code></pre></div>
 </div>
 <div id="glm-with-10-global-pcs" class="section level1" number="4">
 <h1 number="4"><span class="header-section-number">4</span> GLM with 10 global PCs</h1>
@@ -471,7 +474,7 @@ div.tocify {
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{TASK_ID} |;</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="dt">\$</span><span class="st">{phenotype}.phen --keep &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --linear --qcovar &quot;</span><span class="va">${wd}</span><span class="st">&quot;/PC.10global.eigenvec --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/05_BWAS_10globalPCs_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="st"> &quot;</span> 1 50G BWAS05_realPheno 24:00:00 <span class="st">&quot;-array=1-96 -acct=UQ-IMB-CNSG&quot;</span> </span></code></pre></div>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="st"> &quot;</span> 1 50G BWAS05_realPheno 24:00:00 <span class="st">&quot;-array=1-96 &quot;</span> </span></code></pre></div>
 <div id="combine-the-summary-statistics-so-they-have-the-same-format-as-others" class="section level2" number="4.1">
 <h2 number="4.1"><span class="header-section-number">4.1</span> Combine the summary statistics so they have the same format as others</h2>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a></span>
@@ -487,7 +490,7 @@ div.tocify {
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="st">do |;</span></span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="st">tail -n +2 &quot;</span><span class="va">${wd}</span><span class="st">&quot;/06_BWAS_10specificPCs_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype}_</span><span class="dt">\$</span><span class="st">{moda}.linear &gt;&gt; &quot;</span><span class="va">${wd}</span><span class="st">&quot;/06_BWAS_10specificPCs_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype}.linear |;</span></span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="st">done |;</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="st"> &quot;</span> 1 4G BWAS_realPheno_putTogether 01:00:00 <span class="st">&quot;-array=1-5 -acct=UQ-IMB-CNSG&quot;</span> </span></code></pre></div>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="st"> &quot;</span> 1 4G BWAS_realPheno_putTogether 01:00:00 <span class="st">&quot;-array=1-5 &quot;</span> </span></code></pre></div>
 </div>
 </div>
 <div id="glm-with-10-specific-pcs" class="section level1" number="5">
@@ -504,7 +507,7 @@ div.tocify {
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="st">for moda in area thickness thick LogJacs |;</span></span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="st">do |;</span></span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.</span><span class="dt">\$</span><span class="st">{moda}.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="dt">\$</span><span class="st">{phenotype}.phen --keep &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --linear --qcovar &quot;</span><span class="va">${wd}</span><span class="st">&quot;/PC.10specific.</span><span class="dt">\$</span><span class="st">{moda}.eigenvec --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/06_BWAS_10specificPCs_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype}_</span><span class="dt">\$</span><span class="st">{moda} |;</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="st">done |; &quot;</span> 1 40G BWAS06_realPheno 24:00:00 <span class="st">&quot;-array=1-96 -acct=UQ-IMB-CNSG&quot;</span> </span></code></pre></div>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="st">done |; &quot;</span> 1 40G BWAS06_realPheno 24:00:00 <span class="st">&quot;-array=1-96 &quot;</span> </span></code></pre></div>
 </div>
 <div id="lmm-single-random-effect" class="section level1" number="6">
 <h1 number="6"><span class="header-section-number">6</span> LMM single random effect</h1>
@@ -518,7 +521,7 @@ div.tocify {
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{TASK_ID} |;</span></span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="dt">\$</span><span class="st">{phenotype}.phen --orm &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --moa --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/07_BWAS_MOA_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="st">fi &quot;</span> 1 60G BWAS07_realPheno 24:00:00 <span class="st">&quot;-array=1-5 -acct=UQ-IMB-CNSG&quot;</span> </span></code></pre></div>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="st">fi &quot;</span> 1 60G BWAS07_realPheno 24:00:00 <span class="st">&quot;-array=1-5 &quot;</span> </span></code></pre></div>
 </div>
 <div id="glm-with-icv-age-and-sex-as-covariates" class="section level1" number="7">
 <h1 number="7"><span class="header-section-number">7</span> GLM with ICV, age and sex as covariates</h1>
@@ -531,7 +534,7 @@ div.tocify {
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{TASK_ID} |;</span></span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="dt">\$</span><span class="st">{phenotype}.phen --keep &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --linear --qcovar &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ageSexIcv.txt --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/09_BWAS_ICVagesex_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="st">done |; &quot;</span> 1 50G BWAS09_realPheno 24:00:00 <span class="st">&quot;-array=1-5 -acct=UQ-IMB-CNSG&quot;</span> </span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="st">done |; &quot;</span> 1 50G BWAS09_realPheno 24:00:00 <span class="st">&quot;-array=1-5 &quot;</span> </span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Sex, age and ICV BWAS</span></span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="va">wd=</span><span class="st">&quot;path/to/working/directory&quot;</span></span>
@@ -542,7 +545,7 @@ div.tocify {
 <span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a><span class="st">do |;</span></span>
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
 <span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="dt">\$</span><span class="st">{phenotype}.phen --keep &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --linear --qcovar &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/Covariates_no_</span><span class="dt">\$</span><span class="st">{phenotype}.phen --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/09_BWAS_ICVagesex_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="st">done |; &quot;</span> 1 50G BWAS09_realPheno_ageSexICV 24:00:00 <span class="st">&quot;-acct=UQ-IMB-CNSG&quot;</span> </span></code></pre></div>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="st">done |; &quot;</span> 1 50G BWAS09_realPheno_ageSexICV 24:00:00 <span class="st">&quot;&quot;</span> </span></code></pre></div>
 </div>
 <div id="lmm-with-covariates" class="section level1" number="8">
 <h1 number="8"><span class="header-section-number">8</span> LMM with covariates</h1>
@@ -555,7 +558,7 @@ div.tocify {
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{TASK_ID} |;</span></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
 <span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="dt">\$</span><span class="st">{phenotype}.phen --keep &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --moa --qcovar &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ageSexIcv.txt --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/15_BWAS_MOA_allModa_FE_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype} |;</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="st">done |; &quot;</span> 1 100G BWAS09_realPheno 24:00:00 <span class="st">&quot;-array=1-5 -acct=UQ-IMB-CNSG&quot;</span> </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="st">done |; &quot;</span> 1 100G BWAS09_realPheno 24:00:00 <span class="st">&quot;-array=1-5 &quot;</span> </span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Sex, age and ICV BWAS</span></span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="va">wd=</span><span class="st">&quot;path/to/working/directory&quot;</span></span>
@@ -565,7 +568,7 @@ div.tocify {
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="cf">do</span> </span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="va">${wd}</span><span class="ex">/qsubshcom</span> <span class="st">&quot; </span></span>
 <span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="st">echo </span><span class="va">${phenotype}</span><span class="st"> |;</span></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="va">${phenotype}</span><span class="st">.phen --orm &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --moa --qcovar &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/Covariates_no_</span><span class="va">${phenotype}</span><span class="st">.phen --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/15_BWAS_MOA_allModa_FE_realPheno/BWAS_</span><span class="va">${phenotype}</span><span class="st">  |; &quot;</span> 1 100G BWAS15_<span class="va">${phenotype}</span>_ageSexICV 24:00:00 <span class="st">&quot;-acct=UQ-IMB-CNSG&quot;</span> </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="va">${phenotype}</span><span class="st">.phen --orm &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --moa --qcovar &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/Covariates_no_</span><span class="va">${phenotype}</span><span class="st">.phen --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/15_BWAS_MOA_allModa_FE_realPheno/BWAS_</span><span class="va">${phenotype}</span><span class="st">  |; &quot;</span> 1 100G BWAS15_<span class="va">${phenotype}</span>_ageSexICV 24:00:00 <span class="st">&quot;&quot;</span> </span>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code></pre></div>
 </div>
 <div id="lmm-several-random-effects" class="section level1" number="9">
@@ -582,7 +585,7 @@ div.tocify {
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="st">then |;</span></span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno &quot;</span><span class="va">${wd}</span><span class="st">&quot;/UKB_phenotypes15K/</span><span class="dt">\$</span><span class="st">{phenotype}.phen --keep &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove &quot;</span><span class="va">${wd}</span><span class="st">&quot;/ID_UKB_replication.txt --moa --multi-orm &quot;</span><span class="va">${wd}</span><span class="st">&quot;/fwhm0.fsaverage.QC.ormlist --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/10_BWAS_MOA_multiORM_QC_realPheno/BWAS_</span><span class="dt">\$</span><span class="st">{phenotype} --reml-no-constrain  |;</span></span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="st">fi |; </span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="st"> &quot;</span> 1 60G BWAS10_allPheno 48:00:00 <span class="st">&quot;-array=1-5 -acct=UQ-IMB-CNSG&quot;</span> </span></code></pre></div>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="st"> &quot;</span> 1 60G BWAS10_allPheno 48:00:00 <span class="st">&quot;-array=1-5 &quot;</span> </span></code></pre></div>
 <p><br><br></p>
 </div>
 
@@ -591,7 +594,7 @@ div.tocify {
  
 <br><br><br><br>
 <hr />
-<p style="text-align: center;">A work by <a href="https://github.com/">by [Baptiste Couvy-Duchesne] - 30 September 2021</a></p>
+<p style="text-align: center;">A work by <a href="https://github.com/">by [Baptiste Couvy-Duchesne] - 08 October 2021</a></p>
 <p style="text-align: center;"><span style="color: #808080;"><em></em></span></p>
 
 <!-- Add icon library -->

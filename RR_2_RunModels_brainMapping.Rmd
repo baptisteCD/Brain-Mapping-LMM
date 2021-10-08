@@ -48,7 +48,7 @@ do |;
 "${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --out "${wd}"/03_BWAS_uncorrected_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID} |;
 done |;
 done |;
- " 1 50G BWAS03_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+ " 1 50G BWAS03_allModa 24:00:00 "-array=1-100  " 
 
 ```
 
@@ -62,7 +62,7 @@ ${wd}/qsubshcom "
 for NNN in 0 10 100 1000 |;
 do |;
 "${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/ageSexIcv.txt --out "${wd}"/09_BWAS_ICVagesex_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID} |;
-done |; " 1 50G BWAS09_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+done |; " 1 50G BWAS09_allModa 24:00:00 "-array=1-100  " 
 
 ```
 
@@ -78,7 +78,7 @@ do |;
 "${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/PC.5global.eigenvec --out "${wd}"/04_BWAS_5globalPCs_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID} |;
 done |;
 done |;
- " 1 50G BWAS04_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+ " 1 50G BWAS04_allModa 24:00:00 "-array=1-100  " 
 
 ```
 
@@ -93,7 +93,7 @@ for NNN in 0 10 100 1000 |;
 do |;
 "${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/PC.10global.eigenvec --out "${wd}"/05_BWAS_10globalPCs_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID} |;
 done |;
- " 1 50G BWAS05_allModa 10:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+ " 1 50G BWAS05_allModa 10:00:00 "-array=1-100  " 
 
 
 ```
@@ -112,7 +112,7 @@ do |;
 "${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.\${moda}.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --linear --qcovar "${wd}"/PC.10specific.\${moda}.eigenvec --out "${wd}"/06_BWAS_10specificPCs_allModa/BWAS_NVertices\${NNN}_\${moda}_Niter\${TASK_ID} |;
 done |;
 done |;
- " 1 40G BWAS06_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+ " 1 40G BWAS06_allModa 24:00:00 "-array=1-100  " 
 
 ```
 
@@ -131,7 +131,7 @@ do |;
 tail -n +2 "${wd}"/06_BWAS_10specificPCs_allModa/BWAS_NVertices\${NNN}_\${moda}_Niter\${TASK_ID}.linear >> "${wd}"/06_BWAS_10specificPCs_allModa/BWAS_NVertices\${NNN}_Niter\${TASK_ID}.linear |;
 done |;
 done |;
- " 1 4G BWAS_allModa_putTogether 01:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+ " 1 4G BWAS_allModa_putTogether 01:00:00 "-array=1-100  " 
 
 ```
 
@@ -145,7 +145,7 @@ do
 ${wd}/qsubshcom " if [ ! -f "${wd}"/07_BWAS_MOA_allModa/BWAS_NVertices"${NNN}"_Niter\${TASK_ID}.moa ] |;
 then |;
 "${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices"${NNN}"_Niter\${TASK_ID}.phen --orm "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC --remove "${wd}"/ID_UKB_replication.txt --moa --out "${wd}"/07_BWAS_MOA_allModa/BWAS_NVertices"${NNN}"_Niter\${TASK_ID} |;
-fi " 1 60G BWAS07_${NNN}_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+fi " 1 60G BWAS07_${NNN}_allModa 24:00:00 "-array=1-100  " 
 done 
 
 ```
@@ -163,7 +163,7 @@ if [ ! -f "${wd}"/10_BWAS_MOA_multiORM_QC_allModa/BWAS_NVertices"${NNN}"_Niter\$
 then |;
 "${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices"${NNN}"_Niter\${TASK_ID}.phen --keep "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC.orm.id --remove "${wd}"/ID_UKB_replication.txt --moa --multi-orm "${wd}"/fwhm0.fsaverage.QC.ormlist --out "${wd}"/10_BWAS_MOA_multiORM_QC_allModa/BWAS_NVertices"${NNN}"_Niter\${TASK_ID} --reml-maxit 1000 |;
 fi |; 
- " 1 60G BWAS10_${NNN} 48:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+ " 1 60G BWAS10_${NNN} 48:00:00 "-array=1-100  " 
 done 
 
 
@@ -180,7 +180,7 @@ do
 ${wd}/qsubshcom " if [ ! -f "${wd}"/15_BWAS_MOA_allModa_FE/BWAS_NVertices"${NNN}"_Niter\${TASK_ID}.moa ] |;
 then |;
 "${wd}"/osca --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --pheno "${wd}"/02_phenotypesSimul/NVertices"${NNN}"_Niter\${TASK_ID}.phen --orm "${wd}"/BodFiles/BRM.fwhm0.fsaverage.QC --remove "${wd}"/ID_UKB_replication.txt --qcovar "${wd}"/ageSexIcv.txt --moa --out "${wd}"/15_BWAS_MOA_allModa_FE/BWAS_NVertices"${NNN}"_Niter\${TASK_ID} |;
-fi " 1 60G BWAS15_${NNN}_allModa 24:00:00 "-array=1-100 -acct=UQ-IMB-CNSG" 
+fi " 1 60G BWAS15_${NNN}_allModa 24:00:00 "-array=1-100  " 
 done 
 
 ```

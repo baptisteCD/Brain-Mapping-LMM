@@ -51,7 +51,7 @@ then |;
 Rscript --no-save 'RR_2.2_BWAS_FWER_wrapper_allModa_Null.R' "${wd}"/"${scenario}" \${TASK_ID} \${NNN} "${wd}"/"${scenario}"_clusterFWER |;
 fi |;
 done |;
- " 1 10G RR_FWER_${scenario}_NNN0 04:00:00 "-array=1-100 -acct=UQ-IMB-CNSG"
+ " 1 10G RR_FWER_${scenario}_NNN0 04:00:00 "-array=1-100  "
 done
 
 ```
@@ -71,7 +71,7 @@ do |;
 Rscript --no-save 'RR_2.3_BWAS_FWER_wrapper_allModa.R' "${wd}"/"${scenario}" \${TASK_ID} \${NNN} "${wd}"/"${scenario}"_clusterFWER |;
 Rscript --no-save 'RR_2.4_BWAS_clusterFWER_wrapper_arrayjob_allModa.R' "${wd}"/"${scenario}" 100 \${NNN} "${wd}"/"${scenario}"_clusterFWER \${TASK_ID} |;
 done |;
- " 1 10G RR_FWER_${scenario} 48:00:00 "-array=1-100 -acct=UQ-IMB-CNSG"
+ " 1 10G RR_FWER_${scenario} 48:00:00 "-array=1-100  "
 done
 
 ```
@@ -152,7 +152,7 @@ for NNN in 10 100 1000 |;
 do |;
 Rscript --no-save 'RR_2.5.3_BWAS_clusterFWER_wrapper_arrayjob_allModa_varySignifThreshold.R' "${wd}"/"${scenario}" 100 \${NNN} "${wd}"/"${scenario}"_clusterFWER \${TASK_ID}  |;
 done |;
- " 1 10G RR_FWER_${scenario}_allSignif_extra 48:00:00 "-array=1-100 -acct=UQ-IMB-CNSG"
+ " 1 10G RR_FWER_${scenario}_allSignif_extra 48:00:00 "-array=1-100  "
 done
 
 ```

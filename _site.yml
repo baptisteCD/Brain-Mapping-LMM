@@ -23,3 +23,5 @@ navbar:
       href: RR_8_RunBWAS_realPhenotypes.html
     - text: "9 Model results and plots"
       href: RR_9_Extractresults_RealPhenotypes.html
+    - text: "10 Evaluate prediction"
+      href: RR_10_Prediction_realPhenotypes.html

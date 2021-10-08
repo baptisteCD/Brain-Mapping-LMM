@@ -12,7 +12,7 @@
 
 
 
-<meta name="author" content="by [Baptiste Couvy-Duchesne] - 30 September 2021" />
+<meta name="author" content="by [Baptiste Couvy-Duchesne] - 08 October 2021" />
 
 
 <title>Simulate traits from real MRI images</title>
@@ -391,6 +391,9 @@ div.tocify {
 <li>
   <a href="RR_9_Extractresults_RealPhenotypes.html">9 Model results and plots</a>
 </li>
+<li>
+  <a href="RR_10_Prediction_realPhenotypes.html">10 Evaluate prediction</a>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         
@@ -412,7 +415,7 @@ div.tocify {
 
 
 <h1 class="title toc-ignore">Simulate traits from real MRI images</h1>
-<h4 class="author" style="text-align: center;"><em>by [Baptiste Couvy-Duchesne] - 30 September 2021 - </em></h4>
+<h4 class="author" style="text-align: center;"><em>by [Baptiste Couvy-Duchesne] - 08 October 2021 - </em></h4>
 
 </div>
 
@@ -437,7 +440,7 @@ div.tocify {
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="st">shuf -n </span><span class="dt">\$</span><span class="st">{NNN} &quot;</span><span class="va">${wd}</span><span class="st">&quot;/00_BodFiles/AllVertices.fwhm0.fsaverage.UKB10K.QCed.STD.opi | awk &#39;{ print </span><span class="dt">\$</span><span class="st">2 }&#39;  &gt; &quot;</span><span class="va">${wd}</span><span class="st">&quot;/01_vertexSelection/NVertices</span><span class="dt">\$</span><span class="st">{NNN}_Niter</span><span class="dt">\$</span><span class="st">{iter} |;</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="st">done |;</span></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="st">done |;</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="st">done &quot;</span> 1 4G DrawVertices_all 10:00:00 <span class="st">&quot;-acct=UQ-IMB-CNSG&quot;</span> </span></code></pre></div>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="st">done &quot;</span> 1 4G DrawVertices_all 10:00:00 <span class="st">&quot; &quot;</span> </span></code></pre></div>
 </div>
 <div id="generate-phenotypes" class="section level2" number="1.2">
 <h2 number="1.2"><span class="header-section-number">1.2</span> Generate phenotypes</h2>
@@ -457,7 +460,7 @@ div.tocify {
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="st">NNN=1000 |;</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;</span><span class="va">${wd}</span><span class="st">&quot;/osca_17062019 --simu-qt --simu-rsq 0.4 --befile &quot;</span><span class="va">${wd}</span><span class="st">&quot;/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --simu-causal-loci &quot;</span><span class="va">${wd}</span><span class="st">&quot;/01_vertexSelection/NVertices</span><span class="dt">\$</span><span class="st">{NNN}_Niter</span><span class="dt">\$</span><span class="st">{iter} --out &quot;</span><span class="va">${wd}</span><span class="st">&quot;/02_phenotypesSimul/NVertices</span><span class="dt">\$</span><span class="st">{NNN}_Niter</span><span class="dt">\$</span><span class="st">{iter}  |;</span></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="st">done |;</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="st">done |; &quot;</span> 1 4G SimulPheno 10:00:00 <span class="st">&quot;-acct=UQ-IMB-CNSG&quot;</span> </span></code></pre></div>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="st">done |; &quot;</span> 1 4G SimulPheno 10:00:00 <span class="st">&quot; &quot;</span> </span></code></pre></div>
 </div>
 </div>
 <div id="simulate-non-associated-phenotypes" class="section level1" number="2">
@@ -481,7 +484,7 @@ div.tocify {
  
 <br><br><br><br>
 <hr />
-<p style="text-align: center;">A work by <a href="https://github.com/">by [Baptiste Couvy-Duchesne] - 30 September 2021</a></p>
+<p style="text-align: center;">A work by <a href="https://github.com/">by [Baptiste Couvy-Duchesne] - 08 October 2021</a></p>
 <p style="text-align: center;"><span style="color: #808080;"><em></em></span></p>
 
 <!-- Add icon library -->

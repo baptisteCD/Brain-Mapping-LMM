@@ -38,7 +38,7 @@ do |;
 shuf -n \${NNN} "${wd}"/00_BodFiles/AllVertices.fwhm0.fsaverage.UKB10K.QCed.STD.opi | awk '{ print \$2 }'  > "${wd}"/01_vertexSelection/NVertices\${NNN}_Niter\${iter} |;
 done |;
 done |;
-done " 1 4G DrawVertices_all 10:00:00 "-acct=UQ-IMB-CNSG" 
+done " 1 4G DrawVertices_all 10:00:00 " " 
 
 ```
 
@@ -61,7 +61,7 @@ NNN=100 |;
 NNN=1000 |;
 "${wd}"/osca_17062019 --simu-qt --simu-rsq 0.4 --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --simu-causal-loci "${wd}"/01_vertexSelection/NVertices\${NNN}_Niter\${iter} --out "${wd}"/02_phenotypesSimul/NVertices\${NNN}_Niter\${iter}  |;
 done |;
-done |; " 1 4G SimulPheno 10:00:00 "-acct=UQ-IMB-CNSG" 
+done |; " 1 4G SimulPheno 10:00:00 " " 
 
 ```
 

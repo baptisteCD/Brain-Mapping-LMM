@@ -45,7 +45,7 @@ system.file("extdata/03_BWAS_uncorrected_realPheno", "BWAS_Age_MRI.linear", pack
 for (pheno in c("Age_MRI","body_mass_index_bmi_f21001_2_0","fluid_intelligence_score_f20016_2_0", "sexuses_datacoding_9_f31_0_0","smoking_status_f20116_2_0", "sexuses_datacoding_9_f31_0_0") ){
 for (scenario in c("03_BWAS_uncorrected_realPheno", "09_BWAS_ICVagesex_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno", "07_BWAS_MOA_realPheno",  "10_BWAS_MOA_multiORM_QC_realPheno", "15_BWAS_MOA_allModa_FE_realPheno")){
   
-identifyClustersBWAS(pathToTheBWASresults =system.file(paste0("extdata/", scenario), "", package = "brainMapR",mustWork = TRUE) , bwasFile = paste0("BWAS_",pheno), outputFolder = "../", signifThreshold = 5e-8)
+identifyClustersBWAS(pathToTheBWASresults =system.file(paste0("extdata/", scenario), "", package = "brainMapR",mustWork = TRUE), bwasFile = paste0("BWAS_",pheno), outputFolder = "../", signifThreshold = 5e-8)
   print(paste(pheno, scenario))
 }
 }

@@ -33,7 +33,7 @@ cd ${wd} |;
 R -e 'arg=commandArgs(TRUE) ; source(\"/"${wd}"/RR_5.1_BWASprediction.R\") ; makeOSCAscorefile(scenario=arg[1], iter=arg[2], NNN=arg[3])' --args "${scenario}" \${TASK_ID} "${NNN}" |;
 "${wd}"/osca_200220 --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --keep "${wd}"/ID_UKB_replication.txt --score "${wd}"/"${scenario}"_clusterFWER/BWAS_topVerticesCluster_NVertices"${NNN}"_Niter\${TASK_ID}.txt --out "${wd}"/"${scenario}"_clusterFWER/BWAS_predicted_topVerticesCluster_NVertices"${NNN}"_Niter\${TASK_ID} |;
 "${wd}"/osca_200220 --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --keep "${wd}"/ID_UKB_replication.txt --score "${wd}"/"${scenario}"_clusterFWER/BWAS_allSignifVertices_NVertices"${NNN}"_Niter\${TASK_ID}.txt --out "${wd}"/"${scenario}"_clusterFWER/BWAS_predicted_allSignifVertices_NVertices"${NNN}"_Niter\${TASK_ID} |;
-" 1 4G BWAS_${NNN}_${scenario}_pred_simul 01:00:00 "-array=1-100 -acct=UQ-IMB-CNSG"
+" 1 4G BWAS_${NNN}_${scenario}_pred_simul 01:00:00 "-array=1-100 "
 done 
 done
 

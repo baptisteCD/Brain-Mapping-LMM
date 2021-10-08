@@ -1,0 +1,309 @@
+---
+title: "Results and plots from brain mapping on real phenotypes"
+author: "by [Baptiste Couvy-Duchesne] - `r format(Sys.time(), '%d %B %Y')`"
+output:
+  epuRate::ARAMISPCTG:
+    toc: TRUE
+    code_folding: "show"
+---
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+# You need these libraries to run this template:
+library(rmarkdown)    # install.packages("rmarkdown") 
+library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
+
+```
+
+# Extract list of top vertex per cluster
+
+## Identify clusters in brain maps (see section 9) 
+
+```{R, echo=FALSE, eval=F}
+
+library(brainMapR) # devtools::install.github("baptisteCD/brainMapR")
+
+for (var in c("body_mass_index_bmi_f21001_2_0", "fluid_intelligence_score_f20016_2_0",  "sexuses_datacoding_9_f31_0_0", "smoking_status_f20116_2_0")){
+for (scenario in c("03_BWAS_uncorrected_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno", "07_BWAS_MOA_realPheno", "09_BWAS_ICVagesex_realPheno", "15_BWAS_MOA_allModa_FE_realPheno", "10_BWAS_MOA_multiORM_QC_realPheno" )){
+
+  brainMapR::identifyClustersBWAS(pathToTheBWASresults =paste0( scenario, "/") , outputFolder = paste0( scenario, "/") , bwasFile = paste0("BWAS_", var), signifThreshold = 1.5E-8)
+}
+}
+
+```
+## Write list of top vertices
+
+```{R, echo=FALSE, eval=F}
+
+library(readr)
+signifT=0.05/652283/5
+#signifT=1.5e-8
+
+for (scenario in c("03_BWAS_uncorrected_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno", "07_BWAS_MOA_realPheno", "09_BWAS_ICVagesex_realPheno", "15_BWAS_MOA_allModa_FE_realPheno", "10_BWAS_MOA_multiORM_QC_realPheno" )){
+
+for (pheno in c("Age_MRI",  "body_mass_index_bmi_f21001_2_0", "fluid_intelligence_score_f20016_2_0",  "sexuses_datacoding_9_f31_0_0", "smoking_status_f20116_2_0")){
+  vert=NULL 
+  
+for (moda in c("area", "thickness", "LogJacs", "thick")){
+bwas=read.table(paste0(scenario, "/BWAS_NVertices",pheno, "_", moda, "_clustersAndCoordinates"), stringsAsFactors = F)
+clusVars=NULL
+clusVars=colnames(bwas)[grep("cluster_", x = colnames(bwas))]
+
+if (length(clusVars)>0){
+for (iii in 1:length(clusVars)){
+cluster=bwas[which(bwas[,clusVars[iii]]==1),]
+cluster=cluster[order(cluster$p),]
+vert=rbind(vert, c(cluster$Probe[1], cluster$b[1]) )
+
+}}
+
+}
+print(dim(vert)[1])
+write.table(unique(vert), paste0("15_BWAS_prediction/BWAS_topVerticesCluster_", pheno,"_", scenario, ".txt"), col.names = F, row.names = F , quote=F)
+}
+} 
+
+```
+
+## Calculate predictor using OSCA
+
+```{bash, echo=FALSE, eval=F}
+
+wd="/path/to/working/directory"
+cd $wd/15_BWAS_prediction
+
+for scenario in 03_BWAS_uncorrected_realPheno 04_BWAS_5globalPCs_realPheno 05_BWAS_10globalPCs_realPheno 06_BWAS_10specificPCs_realPheno 07_BWAS_MOA_realPheno 09_BWAS_ICVagesex_realPheno 10_BWAS_MOA_multiORM_QC_realPheno 15_BWAS_MOA_allModa_FE_realPheno
+do 
+for pheno in Age_MRI body_mass_index_bmi_f21001_2_0 fluid_intelligence_score_f20016_2_0 sexuses_datacoding_9_f31_0_0 smoking_status_f20116_2_0
+do 
+${wd}/qsubshcom "
+"${wd}"/osca_200220 --befile "${wd}"/BodFiles/AllVertices.fwhm0.fsaverage.UKB15K --keep "${wd}"/ID_UKB_replication.txt --score "${wd}"/15_BWAS_prediction/BWAS_topVerticesCluster_"${pheno}"_"${scenario}".txt --out "${wd}"/15_BWAS_prediction/BWAS_predicted_topVerticesCluster_"${pheno}"_"${scenario}".signif |;
+" 1 30G BWAS_pred_topVertices_${scenario}_${pheno} 10:00:00 " "
+done 
+done 
+
+```
+
+# Open phenotypic data and merge with predictors
+
+```{R, echo=FALSE, eval=F}
+
+library(readr)
+TT=read_csv("UKB_phenotypes_15K_allData_regVars_Jan2019Update.csv")
+
+# Identify QCed individuals 
+qcID=read.table("00_BodFiles/BRM.fwhm0.fsaverage.QC.orm.id", stringsAsFactors = F)
+
+# Add brain PCs - calculated in OSCA 
+pcs=read.table("PC.10global.eigenvec")
+colnames(pcs)=c("eid", "fid", paste0("PC", 1:10))
+dat=merge(dat, pcs, by="eid", all.x=T)
+
+# Add specific PCs
+for (moda in c("thickness", "area", "thick", "LogJacs")){
+pcs=read.table(paste0("PC.10specific.", moda, ".eigenvec"))
+colnames(pcs)=c("eid", "fid", paste0("PC_", moda, "_", 1:10))
+dat=merge(dat, pcs, by="eid", all.x=T)
+}
+
+# Discovery and replication sample
+replicID=read.table("ID_UKB_replication.txt", stringsAsFactors = F)
+dat$discoveryQCed=0
+dat$discoveryQCed[which(!dat$eid %in% replicID$V1 & dat$eid %in% qcID$V1)]=1
+dat$replicationQCed=0
+dat$replicationQCed[which(dat$eid %in% replicID$V1 & dat$eid %in% qcID$V1)]=1
+table(dat$discoveryQCed)
+table(dat$replicationQCed, dat$discoveryQCed)
+
+# Add predictors
+prall=as.data.frame(dat[,c("eid", "Age_MRI")])
+for (scenario in c("03_BWAS_uncorrected_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno", "07_BWAS_MOA_realPheno", "09_BWAS_ICVagesex_realPheno", "10_BWAS_MOA_multiORM_QC_realPheno","15_BWAS_MOA_allModa_FE_realPheno", "10_BWAS_moment2beta_realPheno") ){
+for (pheno in c("Age_MRI","body_mass_index_bmi_f21001_2_0","fluid_intelligence_score_f20016_2_0","sexuses_datacoding_9_f31_0_0","smoking_status_f20116_2_0")){
+
+  pr=read.table(paste0("15_BWAS_prediction/BWAS_predicted_topVerticesCluster_", pheno, "_", scenario, ".signif.profile"), header=T)
+  colnames(pr)=c("eid" ,  "FID" ,  "PHENO" ,paste0("CNT", "_", pheno, "_", scenario)  , paste0("SCORE", "_", pheno, "_", scenario))
+  pr$PHENO=pr$FID=NULL
+  
+  prall=merge(prall, pr, by="eid")
+}}
+
+# Merge
+prall$Age_MRI=NULL
+dat=merge(dat, prall, all.x=T, by="eid")
+
+# Separate discovery from repliation samples
+TTdisco=dat[which(dat$discoveryQCed==1 ),]
+TTrepli=dat[which(dat$replicationQCed==1 ),]
+
+```
+
+# Estimate prediction accuracy including covariates (fixed effects)
+
+```{R, echo=FALSE, eval=F}
+
+signifT=0.05/652283/5
+library(xlsx)
+
+for (pheno in c("Age_MRI","body_mass_index_bmi_f21001_2_0","fluid_intelligence_score_f20016_2_0","sexuses_datacoding_9_f31_0_0","smoking_status_f20116_2_0") ){
+res=resall=NULL
+
+for (scenario in  c("03_BWAS_uncorrected_realPheno", "09_BWAS_ICVagesex_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno", "07_BWAS_MOA_realPheno", "15_BWAS_MOA_allModa_FE_realPheno", "10_BWAS_MOA_multiORM_QC_realPheno", "10_BWAS_moment2beta_realPheno") ){
+
+if (scenario %in% c("03_BWAS_uncorrected_realPheno",  "07_BWAS_MOA_realPheno" , "10_BWAS_MOA_multiORM_QC_realPheno") ){
+TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=scale(TTrepli[,paste0("SCORE_", pheno, "_", scenario)])*sd(TTdisco[,pheno], na.rm = T)+mean(TTdisco[,pheno], na.rm = T) 
+}
+
+  if (scenario == "04_BWAS_5globalPCs_realPheno" ){
+# Predictor from covariates
+formu=paste0( pheno , " ~ "  , paste0("PC", 1:5, collapse = "+")  )
+mCov=glm(as.formula(formu), data = TTdisco)
+TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario)]=predict.glm(mCov, newdata = TTrepli)
+
+# Scale BRS for MAE and combine PC and vertex based scores
+TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=TTrepli[,paste0("SCORE_", pheno, "_", scenario)]* TTrepli[1,paste0("CNT_", pheno, "_", scenario)] +TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario) ]
+}
+
+if (scenario == "05_BWAS_10globalPCs_realPheno" ){
+# Predictor from covariates
+formu=paste0( pheno , " ~ "  , paste0("PC", 1:10, collapse = "+")  )
+mCov=glm(as.formula(formu), data = TTdisco)
+TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario)]=predict.glm(mCov, newdata = TTrepli)
+
+# Scale BRS for MAE and combine PC and vertex based scores
+TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=TTrepli[,paste0("SCORE_", pheno, "_", scenario)]* TTrepli[1,paste0("CNT_", pheno, "_", scenario)] +TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario) ]
+}
+
+  if (scenario == "06_BWAS_10specificPCs_realPheno" ){
+  # Predictor from covariates
+formu=paste0( pheno , " ~ "  , paste0("PC_thickness_", 1:10, collapse = "+")," + ", paste0("PC_area_", 1:10, collapse = "+")," + ", paste0("PC_thick_", 1:10, collapse = "+")," + ", paste0("PC_LogJacs_", 1:10, collapse = "+")  )
+mCov=glm(as.formula(formu), data = TTdisco)
+TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario)]=predict.glm(mCov, newdata = TTrepli)
+
+# Scale BRS for MAE and combine PC and vertex based scores
+TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=TTrepli[,paste0("SCORE_", pheno, "_", scenario)]* TTrepli[1,paste0("CNT_", pheno, "_", scenario)] +TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario) ]
+  }
+  
+if (scenario %in% c("09_BWAS_ICVagesex_realPheno", "15_BWAS_MOA_allModa_FE_realPheno") ){
+  # Predictor from covariates
+formu=paste0( pheno , " ~ Age_MRI + ICV + sexuses_datacoding_9_f31_0_0"    )
+mCov=glm(as.formula(formu), data = TTdisco)
+TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario)]=predict.glm(mCov, newdata = TTrepli)
+   summary(mCov)   
+
+# Scale BRS for MAE and combine PC and vertex based scores
+TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=TTrepli[,paste0("SCORE_", pheno, "_", scenario)]* TTrepli[1,paste0("CNT_", pheno, "_", scenario)] +TTrepli[,paste0("SCORE_Covariates_", pheno, "_", scenario) ]
+
+}
+  
+# Models with no results
+    if (is.nan(TTrepli[1,paste0("SCORE2_", pheno, "_", scenario)]) ){
+    TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]=0
+    } 
+      if (is.nan(TTrepli[1,paste0("SCORE_", pheno, "_", scenario)]) ){
+    TTrepli[,paste0("SCORE_", pheno, "_", scenario)]=0
+    } 
+# Evaluate total prediction 
+formu=paste0( pheno , " ~ "  , paste0("SCORE2_", pheno, "_", scenario) )
+m0=glm(as.formula(formu), data = TTrepli)
+mm=summary(m0)
+
+# Check R2
+if (scenario %in% c("09_BWAS_ICVagesex_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno") ){
+formu=paste0( pheno , " ~ "  , paste0("SCORE_", pheno, "_", scenario), " +", paste0("SCORE_Covariates_", pheno, "_", scenario) )
+} else {
+ formu=paste0( pheno , " ~ "  , paste0("SCORE_", pheno, "_", scenario)) 
+}
+m1=glm(as.formula(formu), data = TTrepli)
+mm1=summary(m1)
+
+# Store results
+res=c(scenario, 
+      TTrepli[1, paste0("CNT_", pheno, "_", scenario)], 
+      1- mm$deviance/mm$null.deviance, 
+      1- mm1$deviance/mm1$null.deviance,   
+      mm$aic, 
+      length(which(mm$coefficients[-1 ,"Pr(>|t|)"]< signifT)),
+      cor(TTrepli[,pheno], TTrepli[,paste0("SCORE2_", pheno, "_", scenario)], use="p"),
+      cor.test(TTrepli[,pheno], TTrepli[,paste0("SCORE2_", pheno, "_", scenario)], use="p")$conf.int[1],
+      cor.test(TTrepli[,pheno], TTrepli[,paste0("SCORE2_", pheno, "_", scenario)], use="p")$conf.int[2],
+      mean(abs(TTrepli[,pheno]-TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]), na.rm = T),
+      sd(abs(TTrepli[,pheno]-TTrepli[,paste0("SCORE2_", pheno, "_", scenario)]), na.rm = T))
+resall=rbind(resall, res)
+}
+
+colnames(resall)=c("scenario", "NbFeatures", "R2","R2-2scores", "aic", "NbSignifVertices", "cor","lb_CI95%", "ub_CI95%", "mae", "sd_mae")
+write.xlsx(resall, "prediction_BWAS_results_topVertexCluster_wCovariates_allPhenoModels_R1IEEE.xlsx", row.names = F, sheetName = pheno, append = T)
+}
+
+```
+
+
+# Make plot - prediction into UKB and OASIS
+
+```{R, echo=FALSE, eval=F}
+
+labelsVar=c("Age", "BMI", "Fluid IQ", "Sex", "Smoking status")
+morphom=c(0.91, 0.59,  0.16, 0.99, 0.15)
+
+library(viridis)
+png( paste0("Prediction_plot_intoUKB_OASIS_topVertexCluster_wCovariates_allPhenoModels_Figure3_R1IEEE.png"), width = 18, height = 10, units = "cm", res = 400)
+
+par(mar=c(0.5,4,0.5,0.5))
+nplots=5
+layout(matrix(data = c(1,2,2,3,4,4,5,6,6,7,8,8,9,10,10), ncol = 5, byrow = F ) )
+
+cols=c(viridis_pal(option = "C")(8))
+nscenarios=8
+
+# Loop on the different variables 
+for (iii in c(2,3,1,4,5)){
+pre=read.xlsx("prediction_intoOASIS_topVertexCluster_wCovariates_N1006_allPhenoModels_R1IEEE.xlsx", sheetIndex = iii, as.data.frame = T, colClasses = c("character", rep( "numeric", 10) ) )
+pre=pre[1:nscenarios,]
+
+preUKB=read.xlsx("prediction_BWAS_results_topVertexCluster_wCovariates_allPhenoModels_R1IEEE.xlsx", sheetIndex = iii, as.data.frame = T, colClasses = c("character", rep( "numeric", 10) ) )
+preUKB=preUKB[1:nscenarios,]
+
+# Number signif clusters
+par(mar=c(0.5,2,0.5,0.5))
+if (iii ==2 ){par(mar=c(0.5,3,0.5,0.5))} 
+
+plot(1:nscenarios, preUKB$NbFeatures, ylab= "", xaxt="n", xlab="", pch=19, lwd=1, col=cols,main = labelsVar[iii], cex.main=0.7)
+grid()
+if (iii ==2 ){title(ylab="Significant clusters", line=2, cex.lab=1)}
+
+# Correlation UKB
+ par(mar=c(8,2,0.5,0.5)) 
+if (iii ==2 ){par(mar=c(8,3,0.5,0.5))}
+
+plot(1:nscenarios, preUKB$cor, ylim=c(0,1), ylab= "", xaxt="n", xlab="", pch=20, lwd=1, col=cols, cex.main=0.7)
+arrows(x0 = 1:nscenarios, y0 = preUKB$lb_CI95., x1 =1:nscenarios, y1 = preUKB$ub_CI95.,  code=3,length=0.05,angle=90,col='black', lwd=1 )
+abline(h=sqrt(morphom[iii]), lty=2, lwd=2, col="darkgrey")
+
+points(1:nscenarios, pre$cor, ylim=c(0,1), pch=8, lwd=1, col=cols)
+arrows(x0 = 1:nscenarios, y0 = pre$lb_CI95., x1 =1:nscenarios, y1 = pre$ub_CI95.,  code=3,length=0.05,angle=90,col='black', lwd=1 )
+grid()
+#legend
+if (iii == 1){
+  labs=c("No covariates", "Sex, ICV reg.","5 global PCs", "10 global PCs", "10 modality spe. PCs", "LMM (global BRM)","LMM with covariates",  "LMM (multi. BRM)")
+}else if (iii == 4){
+  labs=c("No covariates", "Age, ICV reg.","5 global PCs", "10 global PCs", "10 modality spe. PCs", "LMM (global BRM)","LMM with covariates",  "LMM (multi. BRM)")
+} else {
+  labs=c("No covariates", "Age, Sex, ICV reg.","5 global PCs", "10 global PCs", "10 modality spe. PCs", "LMM (global BRM)","LMM with covariates",  "LMM (multi. BRM)")
+
+}
+text(cex=1, x=c(1:nscenarios)+0.5, y=-0.1 , pos = 2, labels = labs, xpd=TRUE, srt=65) 
+if (iii ==2 ){title(ylab="Prediction accuracy", line=2, cex.lab=1)}
+
+}
+dev.off()
+
+```
+
+```{R, echo=FALSE}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/Prediction_plot_intoUKB_OASIS_topVertexCluster_wCovariates_allPhenoModels_Figure3_R1IEEE.png"))
+
+```
+
+
+<br><br>
