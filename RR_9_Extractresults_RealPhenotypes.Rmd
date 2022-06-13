@@ -316,8 +316,8 @@ include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_thick_F
 library(magick)
 
 # List the screenshot files
-imgs <- list.files(path = "../" , pattern = "BWAS_BWAS_Age_MRI.linear_lh_thick_ToFlatGIF_left_view_",  full.names = TRUE )
-imgs2 <- list.files(path = "../" , pattern = "BWAS_BWAS_Age_MRI.linear_lh_thick_FlatGIF_left_view_",  full.names = TRUE )
+imgs <- list.files(path = "../" , pattern = "BWAS_BWAS_Age_MRI.linear_lh_thick_ToFlatGIF_left_view_0",  full.names = TRUE )
+imgs2 <- list.files(path = "../" , pattern = "BWAS_BWAS_Age_MRI.linear_lh_thick_FlatGIF_left_view_0",  full.names = TRUE )
 
 # Combine then in the right order for the GIF
 img_list <- lapply(c(imgs, imgs2, imgs[length(imgs):1]), image_read)
