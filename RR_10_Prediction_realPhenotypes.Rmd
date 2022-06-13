@@ -12,6 +12,9 @@ output:
 library(rmarkdown)    # install.packages("rmarkdown") 
 library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
 
+# Soft-wrap code in knitting
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
+
 ```
 
 # Extract list of top vertex per cluster

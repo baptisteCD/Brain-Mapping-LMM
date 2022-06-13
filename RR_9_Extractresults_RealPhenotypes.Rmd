@@ -10,196 +10,67 @@ output:
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 # You need these libraries to run this template:
 library(rmarkdown)    # install.packages("rmarkdown") 
-library(epuRate)      # devtools::install_github("holtzy/epuRate", force=TRUE)
+library(epuRate)      # devtools::install_github("baptisteCD/epuRate", force=TRUE)
+
+# Soft-wrap code in knitting
+knitr::opts_chunk$set(tidy.opts = list(width.cutoff = 60), tidy = TRUE)
 
 ```
 
 # Load R package 
 
-> Currently only on github - but will be available on CRAN soon
+> Currently only on github - might be on the CRAN at one point 
 
 ```{R, message=FALSE, eval=F}
 
 # remove.packages("brainMapR")
-devtools::install_github("baptisteCD/brainMapR")
+# devtools::install_github("baptisteCD/brainMapR")
 library(brainMapR)
 
 ```
 
-> Some brain association maps (for age at MRI) are given with the package.  They are stored in the package source folder and you can find the paths using the commands below.  
+> Several brain association maps (for age at MRI) are given with the package. They are stored in the package source folder and you can find the paths using the commands below.  
 
 ```{R, message=FALSE, eval=F}
 
-system.file("extdata/07_BWAS_MOA_realPheno", "", package = "brainMapR",mustWork = TRUE)
+system.file("extdata/BWAS_LMM_singleRE", "", package = "brainMapR",mustWork = TRUE)
 
-system.file("extdata/03_BWAS_uncorrected_realPheno", "", package = "brainMapR",mustWork = TRUE)
+system.file("extdata/BWAS_GLM_noCovariates", "", package = "brainMapR",mustWork = TRUE)
 
-system.file("extdata/03_BWAS_uncorrected_realPheno", "BWAS_Age_MRI.linear", package = "brainMapR",mustWork = TRUE)
+system.file("extdata/BWAS_GLM_sexICVcovariates", "BWAS_Age_MRI.linear", package = "brainMapR",mustWork = TRUE)
 
 ```
 
-# Extract cluster characteristics 
+# Manhattan plot, QQplot and annotated brain association maps 
+
+> From the brain association map, the function produces Manhattan and QQplots, and enriches the OSCA output with vertices coordinates and ROI names (Desikan-Killiani atlas).  
 
 ```{R, message=FALSE, eval=F}
 
-for (pheno in c("Age_MRI","body_mass_index_bmi_f21001_2_0","fluid_intelligence_score_f20016_2_0", "sexuses_datacoding_9_f31_0_0","smoking_status_f20116_2_0", "sexuses_datacoding_9_f31_0_0") ){
-for (scenario in c("03_BWAS_uncorrected_realPheno", "09_BWAS_ICVagesex_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno", "07_BWAS_MOA_realPheno",  "10_BWAS_MOA_multiORM_QC_realPheno", "15_BWAS_MOA_allModa_FE_realPheno")){
-  
-identifyClustersBWAS(pathToTheBWASresults =system.file(paste0("extdata/", scenario), "", package = "brainMapR",mustWork = TRUE), bwasFile = paste0("BWAS_",pheno), outputFolder = "../", signifThreshold = 5e-8)
-  print(paste(pheno, scenario))
-}
-}
+BrainMapAnnotAndManhattanPlot(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates/", "", package = "brainMapR",mustWork = TRUE) , "/"), bwasFile = "BWAS_Age_MRI.linear", outputPath = "../",  signifThreshold = 5e-8, yMax = 100, phenotypeLabel = "Age", qqPlot = T)
 
 ```
+> Manhattan plot 
 
-# Create Legend bar
-
-> Legend to be used in plots  
-
-```{R, message=FALSE, eval=F}
-
-cols=c(RColorBrewer::brewer.pal(n = 10, name = "RdYlBu")[10:6],RColorBrewer::brewer.pal(n = 10, name = "RdYlBu")[5:1]) # Select palette colours
-
-png("legendbar.png", width = 5, height = 15, units = "cm", res = 400)
-par(mar=c(2,4,2,2))
-my.colors = colorRampPalette(cols)
-z=matrix(1:100,nrow=1)
-x=1
-y=seq(-0.4,0.4,len=100) # supposing 3 and 2345 are the range of your data
-image(x,y,z,col=my.colors(20),axes=FALSE,xlab="",ylab="", main="Correlation")
-axis(2)
-dev.off()
-
-```
-
-```{R, message=FALSE, eval=T, out.width = "20%"}
+```{R, echo=F , message=FALSE, hide=T,fig.show="hold",out.width="100%"}
 
 library(knitr)
-include_graphics(path = "examplePlots/legendbar.png", dpi = 50)
+include_graphics(path = paste0("examplePlots/Manhathan_BWAS_Age_MRI.linear_simple.png"))
 
 ```
 
-# Make brain plots 
+> QQ plot 
 
-> Brain surface plots, made in R using the rgl package. The cortical surface can take a while to render but the plotting is very versatile.   
-> The brain plot functions use the summary files created using identifyClustersBWAS().  
-> Brain plots will silently open the phenotype file (located in UKB_phenotypes15K) to scale association betas into correlation coefficients.  
-
-```{R, message=FALSE, eval=F}
-
-library(viridis)
-cols=viridis_pal(option = "C")(7)
-
-for (var in c("Age_MRI","body_mass_index_bmi_f21001_2_0","fluid_intelligence_score_f20016_2_0", "sexuses_datacoding_9_f31_0_0","smoking_status_f20116_2_0", "sexuses_datacoding_9_f31_0_0") ){
-  for (scenario in c("03_BWAS_uncorrected_realPheno", "09_BWAS_ICVagesex_realPheno", "04_BWAS_5globalPCs_realPheno", "05_BWAS_10globalPCs_realPheno", "06_BWAS_10specificPCs_realPheno", "07_BWAS_MOA_realPheno",  "10_BWAS_MOA_multiORM_QC_realPheno", "15_BWAS_MOA_allModa_FE_realPheno")){
-
-plotCortical(inputPath = "../", bwasFile = paste0("BWAS_",pheno), pathPhenotypeFile = "../../../UKB_phenotypes15K/Age_MRI.phen", outputPath = " ../")
-
-plotSubcortical(inputPath = "../", bwasFile = paste0("BWAS_",pheno), pathPhenotypeFile = "../../../UKB_phenotypes15K/Age_MRI.phen", outputPath = " ../")
-
-plotSubcortical_flat(inputPath = "../", bwasFile = paste0("BWAS_",pheno), pathPhenotypeFile = "../../../UKB_phenotypes15K/Age_MRI.phen", outputPath = " ../")
-
-combineCorticalSubcorticalPlots(inputPath = "../", bwasFile = paste0("BWAS_",pheno), pathPhenotypeFile = "../../../UKB_phenotypes15K/Age_MRI.phen", outputPath = " ../" )
-}
-}
-
-```
-
-## Cortical panels
-
-> Left cortical surface area associations with age - GLM without covariates
-
-```{R, message=FALSE, hide=T, fig.show="hold",out.width="50%"}
+```{R, echo=F , message=FALSE, hide=T,fig.show="hold",out.width="50%"}
 
 library(knitr)
-hemi="lh"
-moda="area"
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_inside.png"))
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
-
-```
-> Right cortical surface area associations with age - GLM without covariates
-
-```{R, message=FALSE, hide=T, fig.show="hold",out.width="50%"}
-
-library(knitr)
-hemi="rh"
-moda="area"
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_inside.png"))
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
-
-```
-
-> Left cortical thickness associations with age - GLM without covariates
-
-```{R, message=FALSE, hide=T, fig.show="hold",out.width="50%"}
-
-library(knitr)
-hemi="lh"
-moda="thickness"
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_inside.png"))
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
-
-```
-
-> Right cortical thickness associations with age - GLM without covariates
-
-```{R, message=FALSE, hide=T,fig.show="hold",out.width="50%"}
-
-library(knitr)
-hemi="rh"
-moda="thickness"
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_inside.png"))
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
-
-```
-
-## Subcortical plots
-
-> Sucbcortical surface area associations with age - GLM without covariates
-
-```{R, message=FALSE, hide=T,fig.show="hold",out.width="25%"}
-
-library(knitr)
-hemi="rh"
-moda="LogJacs"
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_inside.png"))
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
-
-hemi="lh"
-moda="LogJacs"
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_inside.png"))
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/BWAS_Age_MRI_", hemi, "_", moda, "_clustersAndCoordinates_outside.png"))
-
-```
-
-## Combined plot
-
-```{R, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
-
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/Plots_CombinedAge_MRI.png"))
-
-```
-
-# Produce Manhattan plots
-
-```{R, message=FALSE, eval=F}
-
-library(viridis)
-cols=viridis_pal(option = "C")(7)
-
-BrainMapManhattanPlot(inputPath = system.file("extdata/07_BWAS_MOA_realPheno", "", package = "brainMapR",mustWork = TRUE), path = "03_BWAS_uncorrected_realPheno/", bwasFile = "BWAS_Age_MRI.linear", yMax = 120, signifThreshold =5e-8,  phenotypeLabel = "Age")
-
-```
-
-```{R, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
-
-include_graphics(path = paste0("examplePlots/03_BWAS_uncorrected_realPheno/Manhathan_BWAS_Age_MRI.linear_simple.png"))
+include_graphics(path = paste0("examplePlots/QQplot_BWAS_Age_MRI.linear.png"))
 
 ```
 
 # Table of associated regions and description
 
+> Uses the annotated tables created with BrainMapAnnotAndManhattanPlot() to create the xlsx table of final results  
 > UKB_BWASvars_labels.txt contains 3 columns: variable names, category (e.g. cognition, lifestyle) and variable label (used for plots and tables)  
 
 ```{R, message=FALSE, eval=F}
@@ -222,17 +93,15 @@ for (iii in 1:5){
   }
   vall=cbind(vall, all)
 }
-
 colnames(vall)=pheno$variable_clean
 writexl::write_xlsx(as.data.frame(vall), "../../Summary_BWAS_realPheno_bonferroniNtraits_R1IEEE.xlsx")
 
 
-# N clusters cortex
+# get N clusters cortex
 vall=NULL
 for (iii in c(1,2,3,5)){
   all=NULL
   for (scenario in c("03_BWAS_uncorrected_realPheno","09_BWAS_ICVagesex_realPheno", "05_BWAS_10globalPCs_realPheno", "07_BWAS_MOA_realPheno","15_BWAS_MOA_allModa_FE_realPheno", "10_BWAS_MOA_multiORM_QC_realPheno")){
-  #vres=read.csv(paste0("../../",scenario, "/", "BWAS_signif_", pheno$variable_clean[iii], ".csv" ))
   res=read.table(paste0("../../",scenario, "/", "Results_clusterFWER_", pheno$variable[iii], ".txt" ), header=T)
   nclust=res[,c("NumberClusters_thickness", "NumberClusters_area", "NumberClusters_thick", "NumberClusters_LogJacs")]
   maxclust=res[,c("maxSizeCluster_thickness", "maxSizeCluster_area", "maxSizeCluster_thick", "maxSizeCluster_LogJacs")]
@@ -241,6 +110,302 @@ for (iii in c(1,2,3,5)){
   vall=cbind(vall, all)
 }
 colnames(vall)=pheno$variable_clean
+
+```
+
+# Extract clusters and characteristics 
+
+> From the brain association maps, the function identifies clusters of associated vertices (neighbouring vertices that all reach significance) and outputs some information about each cluster (e.g. size, ROI location based on the Desikan-Killiani atlas, top vertex...)  
+
+```{R, message=FALSE, eval=F}
+
+# For GLM  outputs
+identifyClustersBWAS(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates/", "", package = "brainMapR",mustWork = TRUE) , "/"), bwasFile =  "BWAS_Age_MRI.linear", outputFolder = "../" ,  signifThreshold = 5e-8)
+ 
+# For LMM outputs
+identifyClustersBWAS(inputPath = paste0(system.file("extdata/BWAS_LMM_singleRE",  package = "brainMapR", mustWork = TRUE), "/") , bwasFile =  "BWAS_Age_MRI.moa", outputFolder = "../" ,  signifThreshold = 5e-8)
+
+```
+
+
+
+
+# Create Legend bar (with range of correlation adapted to the data)
+
+> Legend bar to be used in plots  
+
+```{R, message=FALSE, eval=F}
+
+createLegendBar(outputPath = "../", correlationRange = c(-0.4,0.4))
+
+```
+
+```{R , echo=FALSE, message=FALSE, out.width="20%"}
+
+library(knitr)
+include_graphics(path = "examplePlots/legendbar-0.4_0.4.png", dpi = 50)
+
+```
+
+# Make brain plots 
+
+## Cortical brain plots
+
+> Brain surface plots, made in R using the rgl package. The cortical surface can take a while to render but the plotting is very versatile.   
+> Brain plots require the variance of the phenotype to scale association betas into correlation coefficients. It assumes that the vertex-wise data has been standardised prior to the analyses.    
+
+```{R, message=FALSE, eval=F}
+
+plotCortical(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates/", "", package = "brainMapR",mustWork = TRUE) , "/"), bwasFile = "BWAS_Age_MRI.linear", signifThreshold = 5e-8, variancePheno=var(pheno$V3),  outputPath = "../", correlationRange = c(-0.4,0.4))
+
+```
+
+> Left cortical surface area associations with age - GLM without covariates
+
+```{R, echo=FALSE, message=FALSE, hide=T, fig.show="hold",out.width="50%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_area_inside.png"))
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_area_outside.png"))
+
+```
+
+> Right cortical thickness associations with age - GLM without covariates
+
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="50%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_rh_thickness_inside.png"))
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_rh_thickness_outside.png"))
+
+```
+
+## Subcortical plots
+
+```{R, message=FALSE, eval=F}
+
+plotSubcortical(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates/", "", package = "brainMapR",mustWork = TRUE) , "/"), bwasFile = "BWAS_Age_MRI.linear", signifThreshold = 5e-8, variancePheno=var(pheno$V3),  outputPath = "../", correlationRange = c(-0.4,0.4))
+
+```
+
+> Sucbcortical surface area associations with age - GLM without covariates   
+> left then right surface area ("LogJacs")
+
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="25%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_LogJacs_inside_bundled.png"))
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_LogJacs_outside_bundled.png"))
+
+hemi="lh"
+moda="LogJacs"
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_rh_LogJacs_inside_bundled.png"))
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_rh_LogJacs_outside_bundled.png"))
+
+```
+
+> We can improve the plots by moving the subcortical structures so they do not overlap  
+
+```{R, message=FALSE, eval=F}
+
+plotSubcortical_flat(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates/", "", package = "brainMapR",mustWork = TRUE) , "/"), bwasFile = "BWAS_Age_MRI.linear", signifThreshold = 5e-8, variancePheno=var(pheno$V3),  outputPath = "../", correlationRange = c(-0.4,0.4))
+
+```
+
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="25%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_LogJacs_inside.png"))
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_LogJacs_outside.png"))
+
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_rh_LogJacs_inside.png"))
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_rh_LogJacs_outside.png"))
+
+```
+
+## Combined plot
+
+> We can combine the cortical and subcortical plots, as well as the legend in a single plot  
+> From left to right, the surface shown are: left cortical thickness, right cortical thickness, left cortical surface, right cortical surface, left subcortical thickness, right subcortical thickness, left subcortical area, right subcortical area  
+
+```{R, message=FALSE, eval=F}
+
+combineCorticalSubcorticalPlots(inputPath = "../", bwasFile = "BWAS_Age_MRI.linear", pathToLegendBar = "../legendbar-0.4_0.4.png" , outputPath = "../")
+
+```
+
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/Plots_CombinedBWAS_Age_MRI.linear.png"))
+
+```
+
+# GIFs
+
+## Cortical GIFs
+
+```{R, message=FALSE, eval=F}
+
+plotCorticalGIF(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates/", "", package = "brainMapR",mustWork = TRUE) , "/"), bwasFile = "BWAS_Age_MRI.linear", variancePheno =var(pheno$V3), outputPath = paste0(getwd(), "/../"), hemi = "lh", moda = "thickness", signifThreshold = 5e-8, nbImagesForGif = 60, correlationRange = c(-0.4, 0.4), faster = F)
+
+```
+
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_thickness_GIF_light.gif") )
+
+```
+
+## Subcortical GIFs
+
+> NOTE: The GIF package (magick) requires absolute path of the output folder to export the screenshots and gif.   
+
+```{R, message=FALSE, eval=F}
+
+plotSubcorticalGIF(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates/", "", package = "brainMapR",mustWork = TRUE) , "/"), bwasFile = "BWAS_Age_MRI.linear", variancePheno =var(pheno$V3), outputPath = paste0(getwd(), "/../"), hemi = "lh", moda = "thick", signifThreshold = 5e-8, nbImagesForGif = 60, correlationRange = c(-0.4, 0.4))
+
+```
+
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_thick_GIF_light.gif") )
+
+```
+
+> This GIF function, shows the "flattening" of the subcortical nucleus, i.e. from their original position to the spread out version, with better rendering.  
+
+```{R, message=FALSE, eval=F}
+
+plotSubcorticalToFlatGIF(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates/", "", package = "brainMapR",mustWork = TRUE) , "/"), bwasFile = "BWAS_Age_MRI.linear", variancePheno =var(pheno$V3), outputPath = "../", hemi = "lh", moda = "thick", signifThreshold = 5e-8, nbImagesForGif = 60, leftOrRightView = "left", correlationRange = c(-0.4, 0.4))
+
+```
+
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_thick_ToFlatGIF_left_view_light.gif") )
+
+```
+
+> This GIF uses the flattened version of the subcortical volumes, and each structure rotates around its own axis   
+
+```{R, message=FALSE, eval=F}
+
+plotSubcortical_FlatGIF(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates/", "", package = "brainMapR",mustWork = TRUE) , "/") , bwasFile = "BWAS_Age_MRI.linear", variancePheno = var(pheno$V3), outputPath =  "../", hemi = "lh", moda = "thick", signifThreshold = 5e-8, nbImagesForGif = 60, leftOrRightView = "left", correlationRange = c(-0.4, 0.4) )
+
+```
+
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_thick_FlatGIF_left_view_light.gif") )
+
+```
+
+# Custom GIFs
+
+> You may want to make your own gif from the exported screenshots, for example to combine several gifs, or change the speed or resolution, here is an example of how to do this  
+
+> In this example, we combine the two subcortical gifs into one  
+
+```{R, message=FALSE, eval=F}
+
+library(magick)
+
+# List the screenshot files
+imgs <- list.files(path = "../" , pattern = "BWAS_BWAS_Age_MRI.linear_lh_thick_ToFlatGIF_left_view_",  full.names = TRUE )
+imgs2 <- list.files(path = "../" , pattern = "BWAS_BWAS_Age_MRI.linear_lh_thick_FlatGIF_left_view_",  full.names = TRUE )
+
+# Combine then in the right order for the GIF
+img_list <- lapply(c(imgs, imgs2, imgs[length(imgs):1]), image_read)
+
+# Join the images together
+img_joined <- image_join(img_list)
+
+# Reduce size slightly
+img_joined<-image_scale(img_joined, "x300")
+
+# Animate at 20 frames per second
+img_animated <- image_animate(img_joined, fps = 20)
+
+# Save to disk
+image_write(image = img_animated, path = "../lh_thick_combined.gif")
+
+```
+
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/lh_thick_combined.gif") )
+
+```
+
+
+```{R, echo=F, message=FALSE, eval=F}
+
+library(magick)
+
+# List the screenshot files
+imgs <- list.files(path = "../" , pattern = "BWAS_BWAS_Age_MRI.linear_lh_thick_ToFlatGIF_left_view_",  full.names = TRUE )
+# Combine then in the right order for the GIF
+img_list <- lapply(c(imgs, imgs[length(imgs):1]), image_read)
+# Join the images together
+img_joined <- image_join(img_list)
+# Reduce size slightly
+img_joined<-image_scale(img_joined, "x300")
+# Animate at 20 frames per second
+img_animated <- image_animate(img_joined, fps = 20)
+# Save to disk
+image_write(image = img_animated, path = "../BWAS_BWAS_Age_MRI.linear_lh_thick_ToFlatGIF_left_view_light.gif")
+
+
+
+
+# List the screenshot files
+imgs <- list.files(path = "../" , pattern = "BWAS_BWAS_Age_MRI.linear_lh_thickness_GIF_",  full.names = TRUE )
+# Combine then in the right order for the GIF
+img_list <- lapply(c(imgs), image_read)
+# Join the images together
+img_joined <- image_join(img_list)
+# Reduce size slightly
+img_joined<-image_scale(img_joined, "x300")
+# Animate at 20 frames per second
+img_animated <- image_animate(img_joined, fps = 20)
+# Save to disk
+image_write(image = img_animated, path = "../BWAS_BWAS_Age_MRI.linear_lh_thickness_GIF_light.gif")
+
+
+
+# List the screenshot files
+imgs <- list.files(path = "../" , pattern = "BWAS_BWAS",  full.names = TRUE )
+# Combine then in the right order for the GIF
+img_list <- lapply(c(imgs), image_read)
+# Join the images together
+img_joined <- image_join(img_list)
+# Reduce size slightly
+img_joined<-image_scale(img_joined, "x300")
+# Animate at 20 frames per second
+img_animated <- image_animate(img_joined, fps = 20)
+# Save to disk
+image_write(image = img_animated, path = "../BWAS_BWAS_Age_MRI.linear_lh_thick_FlatGIF_left_view_light.gif")
+
+
+
+# List the screenshot files
+imgs <- list.files(path = "../" , pattern = "BWAS_BWAS_Age_MRI.linear_lh_thick_GIF_",  full.names = TRUE )
+# Combine then in the right order for the GIF
+img_list <- lapply(c(imgs), image_read)
+# Join the images together
+img_joined <- image_join(img_list)
+# Reduce size slightly
+img_joined<-image_scale(img_joined, "x300")
+# Animate at 20 frames per second
+img_animated <- image_animate(img_joined, fps = 20)
+# Save to disk
+image_write(image = img_animated, path = "../BWAS_BWAS_Age_MRI.linear_lh_thick_GIF_light.gif")
 
 ```
 
