@@ -68,6 +68,24 @@ include_graphics(path = paste0("examplePlots/QQplot_BWAS_Age_MRI.linear.png"))
 
 ```
 
+
+> You may also want to superimpose the QQplots of several models to compare the inflation of test statistics  
+
+```{R, message=FALSE, eval=F}
+
+superimposedQQplot(inputPaths = c(paste0(system.file("extdata/BWAS_GLM_noCovariates/", "", package = "brainMapR",mustWork = TRUE) , "/"), paste0(system.file("extdata/BWAS_GLM_sexICVcovariates/", "", package = "brainMapR",mustWork = TRUE) , "/"), paste0(system.file("extdata/BWAS_LMM_singleRE/", "", package = "brainMapR",mustWork = TRUE) , "/")), bwasFiles = c("BWAS_Age_MRI.linear", "BWAS_Age_MRI.linear", "BWAS_Age_MRI.moa"), legendList = c("GLM no covar", "GLM sex+ICV", "LMM single RE"), colourList = c("darkblue", "blue", "lightblue"), phenotypeLabel = "Age at MRI", outputPath = "../")
+
+```
+
+```{R, echo=F , message=FALSE, hide=T,fig.show="hold",out.width="50%"}
+
+library(knitr)
+include_graphics(path = paste0("examplePlots/QQplotCombined_assocVerticesAge.png"))
+
+```
+
+
+
 # Table of associated regions and description
 
 > Uses the annotated tables created with BrainMapAnnotAndManhattanPlot() to create the xlsx table of final results  
@@ -251,7 +269,7 @@ plotCorticalGIF(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates/",
 
 ```
 
-```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="75%"}
 
 library(knitr)
 include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_thickness_GIF_light.gif") )
@@ -268,7 +286,7 @@ plotSubcorticalGIF(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovariates
 
 ```
 
-```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="75%"}
 
 library(knitr)
 include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_thick_GIF_light.gif") )
@@ -283,7 +301,7 @@ plotSubcorticalToFlatGIF(inputPath = paste0(system.file("extdata/BWAS_GLM_noCova
 
 ```
 
-```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="75%"}
 
 library(knitr)
 include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_thick_ToFlatGIF_left_view_light.gif") )
@@ -298,7 +316,7 @@ plotSubcortical_FlatGIF(inputPath = paste0(system.file("extdata/BWAS_GLM_noCovar
 
 ```
 
-```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="75%"}
 
 library(knitr)
 include_graphics(path = paste0("examplePlots/BWAS_BWAS_Age_MRI.linear_lh_thick_FlatGIF_left_view_light.gif") )
@@ -326,7 +344,7 @@ img_list <- lapply(c(imgs, imgs2, imgs[length(imgs):1]), image_read)
 img_joined <- image_join(img_list)
 
 # Reduce size slightly
-img_joined<-image_scale(img_joined, "x300")
+img_joined<-image_scale(img_joined, "x600")
 
 # Animate at 20 frames per second
 img_animated <- image_animate(img_joined, fps = 20)
@@ -336,7 +354,7 @@ image_write(image = img_animated, path = "../lh_thick_combined.gif")
 
 ```
 
-```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="100%"}
+```{R, echo=F, message=FALSE, hide=T,fig.show="hold",out.width="75%"}
 
 library(knitr)
 include_graphics(path = paste0("examplePlots/lh_thick_combined.gif") )
@@ -371,11 +389,11 @@ img_list <- lapply(c(imgs), image_read)
 # Join the images together
 img_joined <- image_join(img_list)
 # Reduce size slightly
-img_joined<-image_scale(img_joined, "x300")
+img_joined<-image_scale(img_joined, "x600")
 # Animate at 20 frames per second
 img_animated <- image_animate(img_joined, fps = 20)
 # Save to disk
-image_write(image = img_animated, path = "../BWAS_BWAS_Age_MRI.linear_lh_thickness_GIF_light.gif")
+image_write(image = img_animated, path = "../BWAS_BWAS_Age_MRI.linear_lh_thickness_GIF_light2.gif")
 
 
 
